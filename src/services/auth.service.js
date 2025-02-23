@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const db = require("../models/index.js");
-const { where } = require("sequelize");
+const { where, Op } = require("sequelize");
 
 const salt = 10;
 
@@ -29,23 +29,41 @@ let createNewUser = async (data) => {
     }
 };
 
-let getUserByUsernameAndPassword = async (data) => {
+let getUserByUsernameOrEmailAndPassword = async (data) => {
     try {
         let user = await db.Users.findOne({
-            where: {username: data.username}
+            where: {
+                [Op.or]: [
+                    {username: data.usernameOrEmail},
+                    {email: data.usernameOrEmail}
+                ]
+            }
         });
         if(!user){
             return 0;
         }
-        let isPasswordCorrect = bcrypt.compare(data.password, user.password);
-        if(!isPasswordCorrect) return 1;
+        if(!checkPassword(data.password, user.password)) return 1;
         return user;
     } catch (error) {
         console.log("Error: ", error);
     }
 };
 
+let checkPassword = async (passEnter, passDb) => {
+    try {
+        if(passEnter && passDb)
+            return await bcrypt.compare(passEnter, passDb);
+        else{
+            console.log(passEnter, passDb);
+        }
+    } catch (error) {
+        console.log(error);
+    }   
+}
+
 module.exports = {
+    hashPassword,
     createNewUser,
-    getUserByUsernameAndPassword
+    getUserByUsernameOrEmailAndPassword,
+    checkPassword
 }

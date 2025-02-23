@@ -14,11 +14,12 @@ const transporter = nodemailer.createTransport({
 let generateToken = (user, res) => {
     try {
         const token = jwt.sign(
-            { userId: user.id, 
-            role: user.role || "user" 
+            { 
+                id: user.id, 
+                roleId: user.roleId 
             },
             process.env.JWT_SECRET,
-            { expiresIn: "7d" }
+            { expiresIn: "1d" }
         );
         res.cookie("jwt", token, {
             maxAge: 7 * 24 * 60 * 60 * 1000, 
@@ -33,16 +34,28 @@ let generateToken = (user, res) => {
     }
 };
 
-let sendVerificationMail = async (email) => {
-    const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "5m" });
+let sendVerificationMail = async (id, email) => {
+    const verificationToken = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "5m" });
     const verificationLink = `http://${process.env.HOST}:${process.env.PORT}/api/auth/verify-email?token=${verificationToken}`;
     //console.log(verificationLink);
     await transporter.sendMail({
         from: `<${process.env.EMAIL_ACCOUNT}>`,
         to: email,
         subject: "Xác nhận đăng ký",
-        text: `Vui lòng nhấn vào link sau để xác nhận tài khoản: ${verificationLink}`,
-        html: `<p>Vui lòng nhấn vào link sau để xác nhận tài khoản:</p><a href="${verificationLink}">Xác nhận email</a>`,
+        text: `Vui lòng nhấn vào link sau để nhận tài khoản: ${verificationLink}`,
+        html: `<p>Vui lòng nhấn vào link sau để nhận tài khoản:</p><a href="${verificationLink}">Xác nhận email</a>`,
+    });
+}
+
+let sendResetPasswordMail = async (id, email, randomPassword) => {
+    const verificationToken = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "5m" });
+    //console.log(verificationLink);
+    await transporter.sendMail({
+        from: `<${process.env.EMAIL_ACCOUNT}>`,
+        to: email,
+        subject: "Khôi phục mật khẩu",
+        text: `Mật khẩu mới: ${randomPassword}`,
+        html: `<p>Mật khẩu mới: ${randomPassword}</p>`,
     });
 }
 
@@ -60,5 +73,6 @@ let deleteUserAfterTime = async (userId, delay) => {
 module.exports = {
     generateToken,
     sendVerificationMail,
+    sendResetPasswordMail,
     deleteUserAfterTime
 }
