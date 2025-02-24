@@ -1,5 +1,6 @@
 const db = require("../models/index.js");
 const story_service = require("../services/story.service.js");
+const auth_service = require("../services/auth.service.js");
 const { where, Op } = require("sequelize");
 
 let postStory = async (req, res) => {
@@ -27,8 +28,7 @@ let postStory = async (req, res) => {
 
 let updateStory = async (req, res) => {
     try {
-        let storyId = req.query.id;
-        let story = await db.Stories.findByPk(storyId);
+        let story = await db.Stories.findByPk(req.query.id);
         //console.log(story);
         if(!story)
             return res.status(400).json({message: "Không tìm thấy sách"});
@@ -42,15 +42,11 @@ let updateStory = async (req, res) => {
 
 let deleteStory = async (req, res) => {
     try {
-        let storyId = req.query.id;
-        let story = db.Stories.findByPk(storyId);
+        let story = await db.Stories.findByPk(req.query.id);
+        //console.log(story);
         if(!story)
             return res.status(400).json({message: "Không tìm thấy sách"});
-        if(req.user.roleId > 2)
-            return res.status(400).json({message: "Người dùng không có quyền xóa truyện"});
-        await db.Stories.destroy({
-            where: {id: storyId}
-        });
+        await story_service.deleteStory(req.user, story);
         return res.status(200).json({message: "Xóa sách thành công"});
     } catch (error) {
         console.log(error);
@@ -63,8 +59,7 @@ let updateImage = async (req, res) => {
         let avatar = req.body.avatar;
         if(!avatar)
             return res.status(400).json({ message: "Yêu cầu ảnh bìa" });
-        let storyId = req.query.id;
-        let story = db.Stories.findByPk(storyId);
+        let story = await db.Stories.findByPk(req.query.id);
         if(!story)
             return res.status(400).json({message: "Không tìm thấy sách"});
         await story_service.updateAvatar(storyId, avatar);
@@ -88,10 +83,58 @@ let getInfo = async (req, res) => {
     }
 };
 
+let addManager = async (req, res) => {
+    try {
+        let story = await db.Stories.findByPk(req.query.id);
+        let newManager = await db.Users.findOne({
+            where: {
+                [Op.or]: [
+                    {username: req.body.usernameOrEmail},
+                    {email: req.body.usernameOrEmail}
+                ]
+            }
+        });
+        if(!story)
+            return res.status(400).json({message: "Không tìm thấy sách"});
+        if(!newManager)
+            return res.status(400).json({message: "Không tìm thấy người dùng"});
+        await story_service.addManager(newManager, story);
+        return res.status(200).json({message: "Thêm quản lý viên thành công"});
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({message: "Lỗi máy chủ nội bộ"});
+    }
+}
+
+let deleteManager = async (req, res) => {
+    try {
+        let story = await db.Stories.findByPk(req.query.id);
+        if(!story)
+            return res.status(400).json({message: "Không tìm thấy sách"});
+        let manager = await db.Users.findOne({
+            where: {
+                [Op.or]: [
+                    {username: req.body.usernameOrEmail},
+                    {email: req.body.usernameOrEmail}
+                ]
+            }
+        });
+        if(!manager)
+            return res.status(400).json({message: "Không tìm thấy quản trị viên"});
+        await story.removeManaged(manager);
+        return res.status(200).json({message: "Xóa quản trị viên thành công"});
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({message: "Lỗi máy chủ nội bộ"});
+    }
+}
+
 module.exports = {
     postStory,
     updateStory,
     updateImage,
     deleteStory,
-    getInfo
+    getInfo,
+    addManager,
+    deleteManager
 }

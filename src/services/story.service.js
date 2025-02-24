@@ -19,12 +19,18 @@ let postStory = async (userId, data) => {
             include: {model: db.Stories, as: "Managed"}
         });
         //console.log(user);
+        if(user.roleId > 1){
+            await db.Users.update(
+                {roleId: 1},
+                {where: {id: userId}}
+            );
+        }
         await user.addManaged(story);
         return story;
     } catch (error) {
         console.log(error);
     }
-}
+};
 
 let updateStory = async (data, oldData) => {
     try {
@@ -45,7 +51,7 @@ let updateStory = async (data, oldData) => {
     } catch (error) {
         console.log(error);
     }
-}
+};
 
 let updateAvatar = async (storyId, avatar) => {
     try {
@@ -60,10 +66,36 @@ let updateAvatar = async (storyId, avatar) => {
     } catch (error) {
         console.log(error);
     }
-}
+};
+
+let deleteStory = async (user, story) => {
+    try {
+        await user.removeManaged(story);
+        await db.Stories.destroy({
+            where: {id: story.id}
+        });
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+let addManager = async (user, story) => {
+    try {
+        if(user.roleId > 2){
+            await db.Users.update(
+                {roleId: 2},
+                {where: {id: user.id}}
+            );
+        }
+        await user.addManaged(story);
+    } catch (error) {
+        console.log(error);
+    }
+};
 
 module.exports = {
     postStory,
     updateStory,
-    updateAvatar
+    updateAvatar,
+    addManager
 }

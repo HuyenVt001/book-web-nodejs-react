@@ -8,7 +8,7 @@ const cloudinary = require("../config/cloudinary.js");
 
 let signup = async (req, res) => {
     const {username, password, email} = req.body;
-    console.log(req.body);
+    //console.log(req.body);
     try {
         if(!username || !password || !email)
             return res.status(400).json({message: "Thiếu các trường cần thiết"});
@@ -39,6 +39,8 @@ let signin = async (req, res) => {
             return res.status(400).json("Người dùng không tồn tại");
         if(user==1)
             return res.status(400).json({message: "Mật khẩu không chính xác"});
+        if(!user.isVerified)
+            return res.status(400).json({message: "Tài khoản chưa được xác thực"});
         const token = await auth_utils.generateToken(user, res);
         //console.log(user);
         //console.log(token);
