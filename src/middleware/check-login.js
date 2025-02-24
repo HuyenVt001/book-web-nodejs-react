@@ -10,7 +10,7 @@ let checkLogin = async (req, res, next) => {
             return res.status(401).json({message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục"});
         let token = authHeader.replace("Bearer ", "");
         let decode = jwt.verify(token, process.env.JWT_SECRET);
-        console.log(decode, "--------");
+        //console.log(decode, "--------");
         if(!decode)
             return res.status(401).json({message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục"});
         let user = await db.Users.findOne({ where: {id: decode.id}});

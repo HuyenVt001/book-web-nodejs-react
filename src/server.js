@@ -8,6 +8,7 @@ dotenv.config();
 
 const connectDatabase = require("./config/database.js");
 const auth_route = require("./route/auth.route.js");
+const story_route = require("./route/story.route.js");
 
 let PORT = process.env.PORT;
 
@@ -27,6 +28,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 connectDatabase();
 
 app.use("/api/auth", auth_route);
+app.use("/api/story", story_route);
 
 app.get("/", (req, res) => {
   res.end("Hello User");

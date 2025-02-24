@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     Stories.init(
         {
             title: DataTypes.STRING,
-            authorName: DataTypes.INTEGER,
+            authorName: DataTypes.STRING,
             description: DataTypes.TEXT,
             statusId: DataTypes.INTEGER,
             lastestChapterId: DataTypes.INTEGER,
