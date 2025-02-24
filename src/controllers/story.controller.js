@@ -17,7 +17,7 @@ let postStory = async (req, res) => {
         });
         if(story)
             return res.status(400).json({message: "Sách đã tồn tại"});
-        await story_service.postStory(req.body);
+        await story_service.postStory(req.user.id, req.body);
         return res.status(200).json({message: "Thêm sách mới thành công"});
     } catch (error) {
         console.log(error);

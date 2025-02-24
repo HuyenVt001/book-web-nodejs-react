@@ -15,5 +15,8 @@ module.exports = (sequelize, DataTypes) => {
             timestamps: true
         }
     );
+    Genres.associate = (models) => {
+        Genres.belongsToMany(models.Stories, {through: "Story_Genre", foreignKey: 'genreId', otherKey: 'storyId'})
+    }
     return Genres;
 };

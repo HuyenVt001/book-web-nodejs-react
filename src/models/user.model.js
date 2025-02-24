@@ -20,8 +20,8 @@ module.exports = (sequelize, DataTypes) => {
         }
     );
     Users.associate = (models) => {
-        Users.belongsToMany(models.Stories, { through: 'FavoriteStories', as: 'Favorites' }),
-        Users.belongsToMany(models.Stories, { through: 'ManagedStories', as: 'Managed' })
+        Users.belongsToMany(models.Stories, { through: 'FavoriteStories', as: 'Favorites', foreignKey: 'userId', otherKey: 'storyId'}),
+        Users.belongsToMany(models.Stories, { through: 'ManagedStories', as: 'Managed', foreignKey: 'userId', otherKey: 'storyId' })
     }
     return Users;
 };

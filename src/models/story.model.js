@@ -21,9 +21,9 @@ module.exports = (sequelize, DataTypes) => {
         }
     );
     Stories.associate = (models) => {
-        Stories.belongsToMany(models.Users, { through: 'FavoriteStories', as: 'Favorites' }),
-        Stories.belongsToMany(models.Users, { through: 'ManagedStories', as: 'Managed' })
-        Stories.belongsToMany(models.Genres, { through: 'Story_Genre' })
+        Stories.belongsToMany(models.Users, { through: 'FavoriteStories', as: 'Favorites', foreignKey: 'storyId', otherKey: 'userId' }),
+        Stories.belongsToMany(models.Users, { through: 'ManagedStories', as: 'Managed', foreignKey: 'storyId', otherKey: 'userId' })
+        Stories.belongsToMany(models.Genres, { through: 'Story_Genre', foreignKey: 'storyId', otherKey: 'genreId' })
     }
     return Stories;
 };
