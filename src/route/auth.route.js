@@ -21,5 +21,12 @@ route.post("/update/avatar", checkLogin, auth_controller.updateAvatar);
 route.post("/update/password", checkLogin, auth_controller.updatePassword);
 // request body cần có password và newPassword
 
+// các route comment trong request query cần chứa commentId trừ post-comment và get-comment
+route.post("/post-comment", checkLogin, auth_controller.postComment);
+// request body cần chứa content, request query cần chứa storyId
+route.post("/update-comment", checkLogin, auth_controller.updateComment);
+route.post("/delete-comment", checkLogin, auth_controller.deleteComment);
+route.get("/get-comment", checkLogin, auth_controller.getComment);
+
 module.exports = route;
 

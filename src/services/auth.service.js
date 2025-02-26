@@ -15,7 +15,7 @@ let hashPassword = async (password) => {
 
 let createNewUser = async (data) => {
     try {
-        let hashedPassword = await hashPassword(data.password); 
+        let hashedPassword = await hashPassword(data.password);
         let newUser = await db.Users.create({
             username: data.username,
             password: hashedPassword,
@@ -23,7 +23,7 @@ let createNewUser = async (data) => {
             createdAt: Date.now(),
             updatedAt: Date.now()
         });
-        return newUser; 
+        return newUser;
     } catch (error) {
         console.error("Error creating user:", error);
     }
@@ -34,15 +34,15 @@ let getUserByUsernameOrEmailAndPassword = async (data) => {
         let user = await db.Users.findOne({
             where: {
                 [Op.or]: [
-                    {username: data.usernameOrEmail},
-                    {email: data.usernameOrEmail}
+                    { username: data.usernameOrEmail },
+                    { email: data.usernameOrEmail }
                 ]
             }
         });
-        if(!user){
+        if (!user) {
             return 0;
         }
-        if(!checkPassword(data.password, user.password)) return 1;
+        if (!checkPassword(data.password, user.password)) return 1;
         return user;
     } catch (error) {
         console.log("Error: ", error);
@@ -51,19 +51,34 @@ let getUserByUsernameOrEmailAndPassword = async (data) => {
 
 let checkPassword = async (passEnter, passDb) => {
     try {
-        if(passEnter && passDb)
+        if (passEnter && passDb)
             return await bcrypt.compare(passEnter, passDb);
-        else{
+        else {
             console.log(passEnter, passDb);
         }
     } catch (error) {
         console.log(error);
-    }   
+    }
+}
+
+let postComment = async (user, story, content) => {
+    try {
+        await db.Comments.create({
+            userId: user.id,
+            storyId: story.id,
+            content: content,
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+        });
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 module.exports = {
     hashPassword,
     createNewUser,
     getUserByUsernameOrEmailAndPassword,
-    checkPassword
+    checkPassword,
+    postComment
 }
