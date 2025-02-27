@@ -27,7 +27,7 @@ let postStory = async (req, res) => {
 
 let updateStory = async (req, res) => {
     try {
-        let story = await db.Stories.findByPk(req.query.id);
+        let story = await db.Stories.findByPk(req.params.storyId);
         //console.log(story);
         if (!story)
             return res.status(400).json({ message: "Không tìm thấy sách" });
@@ -41,7 +41,7 @@ let updateStory = async (req, res) => {
 
 let deleteStory = async (req, res) => {
     try {
-        let story = await db.Stories.findByPk(req.query.id);
+        let story = await db.Stories.findByPk(req.params.storyId);
         //console.log(story);
         if (!story)
             return res.status(400).json({ message: "Không tìm thấy sách" });
@@ -58,7 +58,7 @@ let updateImage = async (req, res) => {
         let avatar = req.body.avatar;
         if (!avatar)
             return res.status(400).json({ message: "Yêu cầu ảnh bìa" });
-        let story = await db.Stories.findByPk(req.query.id);
+        let story = await db.Stories.findByPk(req.params.storyI);
         if (!story)
             return res.status(400).json({ message: "Không tìm thấy sách" });
         await story_service.updateAvatar(story.id, avatar);
@@ -74,7 +74,7 @@ let updateGenre = async (req, res) => {
         let listGenres = req.body.listGenres;
         if (!listGenres)
             return res.status(400).json({ message: "Yêu cầu chọn các thể loại" });
-        let story = await db.Stories.findByPk(req.query.id, { include: Genres });
+        let story = await db.Stories.findByPk(req.params.storyId, { include: { model: db.Genres } });
         if (!story)
             return res.status(400).json({ message: "Không tìm thấy sách" });
         await story_service.updateGenre(story, listGenres);
@@ -87,7 +87,7 @@ let updateGenre = async (req, res) => {
 
 let getInfo = async (req, res) => {
     try {
-        let storyId = req.query.id;
+        let storyId = req.params.storyId;
         let story = await db.Stories.findByPk(storyId);
         if (!story)
             return res.status(400).json({ message: "Không tìm thấy sách" });
@@ -100,7 +100,7 @@ let getInfo = async (req, res) => {
 
 let addManager = async (req, res) => {
     try {
-        let story = await db.Stories.findByPk(req.query.id);
+        let story = await db.Stories.findByPk(req.params.storyId);
         let newManager = await db.Users.findOne({
             where: {
                 [Op.or]: [
@@ -123,7 +123,7 @@ let addManager = async (req, res) => {
 
 let deleteManager = async (req, res) => {
     try {
-        let story = await db.Stories.findByPk(req.query.id);
+        let story = await db.Stories.findByPk(req.params.storyId);
         if (!story)
             return res.status(400).json({ message: "Không tìm thấy sách" });
         let manager = await db.Users.findOne({
@@ -146,13 +146,12 @@ let deleteManager = async (req, res) => {
 
 let getChapter = async (req, res) => {
     try {
-        let story = await db.Stories.findByPk(req.query.id);
+        let story = await db.Stories.findByPk(req.params.storyId, {
+            include: { model: db.Chapters }
+        });
         if (!story)
             return res.status(400).json({ message: "Không tìm thấy sách" });
-        let listChapters = await db.Chapters.findAll({
-            where: { storyId: story.id }
-        });
-        return res.status(200).send(listChapters);
+        return res.status(200).send(story.Chapters);
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
@@ -161,17 +160,19 @@ let getChapter = async (req, res) => {
 
 let getComment = async (req, res) => {
     try {
-        let story = await db.Stories.findByPk(req.query.id);
+        let story = await db.Stories.findByPk(req.params.storyId, {
+            include: {
+                model: db.Comments,
+                include: { model: db.Users, attributes: "username" }
+            }
+        });
         if (!story)
             return res.status(400).json({ message: "Không tìm thấy sách" });
-        let comments = await db.Comments.findAll({
-            where: { storyId: story.id }
-        });
-        let listComments = [];
-        for (let comment of comments) {
-            let user = await db.Stories.findByPk(comment.userId);
-            listComments.push({ username: user.username, storyname: story.title, content: comment.content });
-        }
+        let listComments = story.Comments.map(comment => ({
+            username: comment.user.username,
+            storyname: story.title,
+            content: comment.content
+        }))
         return res.status(200).send(listComments);
     } catch (error) {
         console.log(error);

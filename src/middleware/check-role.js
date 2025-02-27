@@ -15,23 +15,23 @@ let isAuthor = async (req, res, next) => {
     try {
         //kiểm tra đăng nhập
         let authHeader = req.headers.authorization;
-        if(!authHeader || !authHeader.startsWith("Bearer "))
-            return res.status(401).json({message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục"});
+        if (!authHeader || !authHeader.startsWith("Bearer "))
+            return res.status(401).json({ message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục" });
         let token = authHeader.replace("Bearer ", "");
         let decode = jwt.verify(token, process.env.JWT_SECRET);
         //console.log(decode, "--------");
-        if(!decode)
-            return res.status(401).json({message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục"});
-        
+        if (!decode)
+            return res.status(401).json({ message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục" });
+
         //kiểm tra quyền hạn
         let role = decode.roleId;
-        if(role > 1)
+        if (role > 1)
             return res.status(400).json("Bạn không có quyền truy cập");
 
         //check quyền chỉnh sửa
         let check = checkManagedStories(decode.id, req.query.id);
-        if(check==null)
-            return res.status(400).json({message: "Không tìm thấy sách hoặc không có quyền chỉnh sửa sách"});
+        if (check == null)
+            return res.status(400).json({ message: "Không tìm thấy sách hoặc không có quyền chỉnh sửa sách" });
 
         //gửi thông tin
         req.user = check.user;
@@ -46,20 +46,20 @@ let isAdmin = async (req, res, next) => {
     try {
         //kiểm tra đăng nhập
         let authHeader = req.headers.authorization;
-        if(!authHeader || !authHeader.startsWith("Bearer "))
-            return res.status(401).json({message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục"});
+        if (!authHeader || !authHeader.startsWith("Bearer "))
+            return res.status(401).json({ message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục" });
         let token = authHeader.replace("Bearer ", "");
         let decode = jwt.verify(token, process.env.JWT_SECRET);
         //console.log(decode, "--------");
-        if(!decode)
-            return res.status(401).json({message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục"});
-        
+        if (!decode)
+            return res.status(401).json({ message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục" });
+
         //kiểm tra quyền hạn
         let role = decode.roleId;
-        if(role > 0)
+        if (role > 0)
             return res.status(400).json("Bạn không có quyền truy cập");
         req.user = await db.Users.findOne({
-            where: {id: decode.id}
+            where: { id: decode.id }
         });
         next();
     } catch (error) {
@@ -71,22 +71,22 @@ let isManager = async (req, res, next) => {
     try {
         //check đăng nhập
         let authHeader = req.headers.authorization;
-        if(!authHeader || !authHeader.startsWith("Bearer "))
-            return res.status(401).json({message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục"});
+        if (!authHeader || !authHeader.startsWith("Bearer "))
+            return res.status(401).json({ message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục" });
         let token = authHeader.replace("Bearer ", "");
         let decode = jwt.verify(token, process.env.JWT_SECRET);
-        if(!decode)
-            return res.status(401).json({message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục"});
-        
+        if (!decode)
+            return res.status(401).json({ message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục" });
+
         //check role (admin, author hay manager)
         let role = decode.roleId;
-        if(role > 2)
+        if (role > 2)
             return res.status(400).json("Bạn không có quyền truy cập");
-        
+
         //check quyền chỉnh sửa
         let check = await checkManagedStories(decode.id, req.query.id);
-        if(!check)
-            return res.status(400).json({message: "Không tìm thấy sách hoặc không có quyền chỉnh sửa sách"});
+        if (!check)
+            return res.status(400).json({ message: "Không tìm thấy sách hoặc không có quyền chỉnh sửa sách" });
 
         //gửi thông tin
         req.user = check.user;
@@ -101,14 +101,14 @@ let isManager = async (req, res, next) => {
 let checkManagedStories = async (userId, storyId) => {
     try {
         let user = await db.Users.findOne({
-            where: {id: userId}
+            where: { id: userId }
         });
         let managedStories = await user.getManaged();
-        console.log(managedStories);
+        //console.log(managedStories);
         let findStory = managedStories.find(story => story.id === storyId);
-        if(!findStory)
+        if (!findStory)
             return null;
-        return {user: user, managedStories: managedStories};
+        return { user: user, managedStories: managedStories };
     } catch (error) {
         console.log(error);
     }

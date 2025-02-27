@@ -2,7 +2,12 @@
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Stories extends Model {
-        static associate(models) { }
+        static associate(models) {
+            Stories.belongsToMany(models.Users, { through: 'FavoriteStories', as: 'Favorites', foreignKey: 'storyId', otherKey: 'userId' });
+            Stories.belongsToMany(models.Users, { through: 'ManagedStories', as: 'Managed', foreignKey: 'storyId', otherKey: 'userId' });
+            Stories.belongsToMany(models.Genres, { through: 'Story_Genre', foreignKey: 'storyId', otherKey: 'genreId' });
+            Stories.hasMany(models.Chapters, { foreignKey: 'storyId', as: 'Chapters' })
+        }
     }
     Stories.init(
         {
@@ -20,10 +25,5 @@ module.exports = (sequelize, DataTypes) => {
             timestamps: true
         }
     );
-    Stories.associate = (models) => {
-        Stories.belongsToMany(models.Users, { through: 'FavoriteStories', as: 'Favorites', foreignKey: 'storyId', otherKey: 'userId' }),
-        Stories.belongsToMany(models.Users, { through: 'ManagedStories', as: 'Managed', foreignKey: 'storyId', otherKey: 'userId' })
-        Stories.belongsToMany(models.Genres, { through: 'Story_Genre', foreignKey: 'storyId', otherKey: 'genreId' })
-    }
     return Stories;
 };

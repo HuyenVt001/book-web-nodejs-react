@@ -5,7 +5,7 @@ let postChapter = async (req, res) => {
     try {
         let title = req.body.title;
         let content = req.body.content;
-        let storyId = req.query.id;
+        let storyId = req.params.storyId;
         if (!title || !content)
             return res.status(400).json({ message: "Thiếu các thông tin cần thiết" });
         let story = await db.Stories.findByPk(storyId);
@@ -21,7 +21,7 @@ let postChapter = async (req, res) => {
 
 let updateChapter = async (req, res) => {
     try {
-        let chapterId = req.query.chapterId;
+        let chapterId = req.params.chapterId;
         let chapter = await db.Chapters.findByPk(chapterId);
         if (!chapter)
             return res.status(400).json({ message: "Không tìm thấy chương sách" });
@@ -35,7 +35,7 @@ let updateChapter = async (req, res) => {
 
 let deleteChapter = async (req, res) => {
     try {
-        let chapterId = req.query.chapterId;
+        let chapterId = req.params.chapterId;
         let chapter = await db.Chapters.findByPk(chapterId);
         if (!chapter)
             return res.status(400).json({ message: "Không tìm thấy chương sách" });
@@ -51,7 +51,7 @@ let deleteChapter = async (req, res) => {
 
 let getChapter = async (req, res) => {
     try {
-        let chapterId = req.query.chapterId;
+        let chapterId = req.params.chapterId;
         let chapter = await db.Chapters.findByPk(chapterId);
         if (!chapter)
             return res.status(400).json({ message: "Không tìm thấy chương sách" });

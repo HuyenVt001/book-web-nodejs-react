@@ -149,7 +149,7 @@ let updatePassword = async (req, res) => {
 
 let postComment = async (req, res) => {
     try {
-        let storyId = req.query.id;
+        let storyId = req.params.storyId;
         let story = await db.Stories.findByPk(storyId);
         if (!story)
             return res.status(400).json({ message: "Không tìm thấy sách" });
@@ -165,7 +165,7 @@ let postComment = async (req, res) => {
 
 let updateComment = async (req, res) => {
     try {
-        let comment = await db.Comments.findByPk(req.query.commentId);
+        let comment = await db.Comments.findByPk(req.params.commentId);
         if (!comment)
             return res.status(400).json({ message: "Không tìm thấy bình luận" });
         if (req.user.id != comment.userId)
@@ -183,7 +183,7 @@ let updateComment = async (req, res) => {
 
 let deleteComment = async (req, res) => {
     try {
-        let comment = await db.Comments.findByPk(req.query.commentId);
+        let comment = await db.Comments.findByPk(req.params.commentId);
         if (!comment)
             return res.status(400).json({ message: "Không tìm thấy bình luận" });
         if (req.user.id != comment.userId)
@@ -213,6 +213,65 @@ let getComment = async (req, res) => {
     }
 }
 
+let addFavorite = async (req, res) => {
+    try {
+        let story = await db.Stories.findByPk(req.params.storyId);
+        if (!story)
+            return res.status(400).json({ message: "Không tìm thấy sách" });
+        await req.user.addFavorites(story);
+        return res.status(200).json({ message: "Thêm sách yêu thích thành công" });
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+}
+
+let deleteFavorite = async (req, res) => {
+    try {
+        let story = await db.Stories.findByPk(req.params.storyId);
+        if (!story)
+            return res.status(400).json({ message: "Không tìm thấy sách" });
+        await req.user.removeFavorites(story);
+        return res.status(200).json({ message: "Thêm sách yêu thích thành công" });
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+}
+
+let getFavorite = async (req, res) => {
+    try {
+        let listStoryIds = await req.user.getFavorites();
+        let listStories = [];
+        for (let storyId of listStoryIds) {
+            let story = await db.Stories.findOne(
+                { where: { id: storyId } },
+                { include: { model: db.Users, as: "Favorites" } }
+            );
+            listStories.push(story);
+        }
+        return res.status(200).send(listStories);
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+}
+
+let getNotification = async (req, res) => {
+    try {
+        let notifications = await db.Notifications.findAll({
+            where: {
+                userId: req.user.id,
+                isRead: false
+            }
+        });
+        return res.status(200).send(notifications);
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+}
+
 module.exports = {
     signup,
     signin,
@@ -224,5 +283,9 @@ module.exports = {
     postComment,
     updateComment,
     deleteComment,
-    getComment
+    getComment,
+    addFavorite,
+    deleteFavorite,
+    getFavorite,
+    getNotification
 }

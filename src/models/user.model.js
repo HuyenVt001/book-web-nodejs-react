@@ -2,7 +2,11 @@
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Users extends Model {
-        static associate(models) { }
+        static associate(models) {
+            Users.belongsToMany(models.Stories, { through: 'FavoriteStories', as: 'Favorites', foreignKey: 'userId', otherKey: 'storyId' });
+            Users.belongsToMany(models.Stories, { through: 'ManagedStories', as: 'Managed', foreignKey: 'userId', otherKey: 'storyId' });
+            Users.hasMany(models.Notifications, { foreignKey: 'userId', as: 'Notifications' })
+        }
     }
     Users.init(
         {
@@ -19,9 +23,5 @@ module.exports = (sequelize, DataTypes) => {
             timestamps: true
         }
     );
-    Users.associate = (models) => {
-        Users.belongsToMany(models.Stories, { through: 'FavoriteStories', as: 'Favorites', foreignKey: 'userId', otherKey: 'storyId'}),
-        Users.belongsToMany(models.Stories, { through: 'ManagedStories', as: 'Managed', foreignKey: 'userId', otherKey: 'storyId' })
-    }
     return Users;
 };

@@ -21,12 +21,18 @@ route.post("/update/avatar", checkLogin, auth_controller.updateAvatar);
 route.post("/update/password", checkLogin, auth_controller.updatePassword);
 // request body cần có password và newPassword
 
-// các route comment trong request query cần chứa commentId trừ post-comment và get-comment
-route.post("/post-comment", checkLogin, auth_controller.postComment);
-// request body cần chứa content, request query cần chứa storyId
-route.post("/update-comment", checkLogin, auth_controller.updateComment);
-route.post("/delete-comment", checkLogin, auth_controller.deleteComment);
+route.post("/post-comment/:storyId", checkLogin, auth_controller.postComment);
+// request body cần có content
+route.post("/update-comment/:commentId", checkLogin, auth_controller.updateComment);
+// request body cần có content
+route.post("/delete-comment/:commentId", checkLogin, auth_controller.deleteComment);
 route.get("/get-comment", checkLogin, auth_controller.getComment);
+
+route.post("/add-favorite/:storyId", checkLogin, auth_controller.addFavorite);
+route.get("/get-favorite", checkLogin, auth_controller.getFavorite);
+route.post("/delete-favorite/:storyId", checkLogin, auth_controller.deleteFavorite);
+
+route.get("/get-notification", checkLogin, auth_controller.getNotification);
 
 module.exports = route;
 

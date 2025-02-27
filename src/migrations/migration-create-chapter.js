@@ -22,7 +22,12 @@ module.exports = {
             },
             storyId: {
                 allowNull: false,
-                type: Sequelize.INTEGER
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'Stories',
+                    key: 'id'
+                },
+                onUpdate: 'CASCADE'
             },
             views: {
                 defaultValue: 0,
