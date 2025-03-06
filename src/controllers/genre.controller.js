@@ -55,7 +55,7 @@ let deleteGenre = async (req, res) => {
 let getAll = async (req, res) => {
     try {
         let listGenres = await db.Genres.findAll();
-        return res.status(200).send(listGenres);
+        return res.status(200).json(listGenres);
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });

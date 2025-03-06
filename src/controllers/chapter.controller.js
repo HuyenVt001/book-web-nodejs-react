@@ -55,7 +55,7 @@ let getChapter = async (req, res) => {
         let chapter = await db.Chapters.findByPk(chapterId);
         if (!chapter)
             return res.status(400).json({ message: "Không tìm thấy chương sách" });
-        return res.status(200).send(chapter);
+        return res.status(200).json(chapter);
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });

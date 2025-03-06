@@ -10,6 +10,7 @@ route.post("/signup", auth_controller.signup);
 route.get("/verify-email", auth_controller.verifyEmail);
 route.post("/signin", auth_controller.signin);
 // cần usernameOrEmail và password
+route.post("/logout", checkLogin, auth_controller.logout);
 
 route.post("/reset-password", auth_controller.resetPassword);
 // request body cần có thuộc tính usernameOrEmail

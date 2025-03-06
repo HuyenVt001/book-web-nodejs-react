@@ -206,7 +206,7 @@ let getComment = async (req, res) => {
             let story = await db.Stories.findByPk(comment.storyId);
             listComments.push({ username: req.user.username, storyname: story.title, content: comment.content });
         }
-        return res.status(200).send(listComments);
+        return res.status(200).json(listComments);
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
@@ -250,7 +250,7 @@ let getFavorite = async (req, res) => {
             );
             listStories.push(story);
         }
-        return res.status(200).send(listStories);
+        return res.status(200).json(listStories);
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
@@ -265,7 +265,18 @@ let getNotification = async (req, res) => {
                 isRead: false
             }
         });
-        return res.status(200).send(notifications);
+        return res.status(200).json(notifications);
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+}
+
+let logout = async (req, res) => {
+    try {
+        res.cookie("token", "", { expires: new Date(0), httpOnly: true, secure: true, sameSite: "Strict" });
+        // xóa cookie bằng cách đặt thời gian ở quá khứ
+        return res.status(200).json({ message: "Đăng xuất thành công!" });
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
@@ -287,5 +298,6 @@ module.exports = {
     addFavorite,
     deleteFavorite,
     getFavorite,
-    getNotification
+    getNotification,
+    logout
 }
