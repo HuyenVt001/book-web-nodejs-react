@@ -206,7 +206,7 @@ let getComment = async (req, res) => {
             let story = await db.Stories.findByPk(comment.storyId);
             listComments.push({ username: req.user.username, storyname: story.title, content: comment.content });
         }
-        return res.status(200).json(listComments);
+        return res.status(200).json({ listComments: listComments });
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
@@ -250,7 +250,7 @@ let getFavorite = async (req, res) => {
             );
             listStories.push(story);
         }
-        return res.status(200).json(listStories);
+        return res.status(200).json({ listStories: listStories });
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
@@ -265,7 +265,7 @@ let getNotification = async (req, res) => {
                 isRead: false
             }
         });
-        return res.status(200).json(notifications);
+        return res.status(200).json({ notifications: notifications });
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });

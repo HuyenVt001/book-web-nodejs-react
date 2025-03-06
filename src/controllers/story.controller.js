@@ -91,7 +91,7 @@ let getInfo = async (req, res) => {
         let story = await db.Stories.findByPk(storyId);
         if (!story)
             return res.status(400).json({ message: "Không tìm thấy sách" });
-        return res.status(200).json(story);
+        return res.status(200).json({ story: story });
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
@@ -151,7 +151,7 @@ let getChapter = async (req, res) => {
         });
         if (!story)
             return res.status(400).json({ message: "Không tìm thấy sách" });
-        return res.status(200).json(story.Chapters);
+        return res.status(200).json({ chapters: story.Chapters });
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
@@ -173,7 +173,7 @@ let getComment = async (req, res) => {
             storyname: story.title,
             content: comment.content
         }))
-        return res.status(200).json(listComments);
+        return res.status(200).json({ listComments: listComments });
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
