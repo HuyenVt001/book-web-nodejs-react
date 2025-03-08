@@ -29,7 +29,7 @@ let isAuthor = async (req, res, next) => {
             return res.status(400).json("Bạn không có quyền truy cập");
 
         //check quyền chỉnh sửa
-        let check = checkManagedStories(decode.id, req.query.id);
+        let check = checkManagedStories(decode.id, req.params.storyId);
         if (check == null)
             return res.status(400).json({ message: "Không tìm thấy sách hoặc không có quyền chỉnh sửa sách" });
 
@@ -84,7 +84,7 @@ let isManager = async (req, res, next) => {
             return res.status(400).json("Bạn không có quyền truy cập");
 
         //check quyền chỉnh sửa
-        let check = await checkManagedStories(decode.id, req.query.id);
+        let check = await checkManagedStories(decode.id, req.params.storyId);
         if (!check)
             return res.status(400).json({ message: "Không tìm thấy sách hoặc không có quyền chỉnh sửa sách" });
 

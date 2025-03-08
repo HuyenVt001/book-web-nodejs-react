@@ -7,9 +7,9 @@ const route = express.Router();
 
 route.post("/post-chapter/:storyId", check_role.isManager, chapter_controller.postChapter);
 // request body: title và content
-route.post("/update-chapter/:chapterId", check_role.isManager, chapter_controller.updateChapter);
+route.post("/update-chapter/:storyId/:chapterId", check_role.isManager, chapter_controller.updateChapter);
 // request body: title (có thể có hoặc không), content (có thể có hoặc không)
-route.post("/delete-chapter/:chapterId", check_role.isManager, chapter_controller.deleteChapter);
+route.post("/delete-chapter/:storyId/:chapterId", check_role.isManager, chapter_controller.deleteChapter);
 
 route.get("/get-chapter/:chapterId", chapter_controller.getChapter);
 
