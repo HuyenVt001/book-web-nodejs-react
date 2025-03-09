@@ -21,8 +21,8 @@ let signup = async (req, res) => {
         if (password.length < 6)
             return res.status(400).json({ message: "Mật khẩu phải chứa ít nhất 6 ký tự" });
         let newUser = await auth_services.createNewUser({ username, password, email });
-        await auth_utils.sendVerificationMail(id, email);
-        return res.status(200).json("Mail xác thực đã được gửi về email của bạn! Vui lòng xác thực tài khoản.");
+        await auth_utils.sendVerificationMail(newUser.id, email);
+        return res.status(200).json({ message: "Mail xác thực đã được gửi về email của bạn! Vui lòng xác thực tài khoản." });
     } catch (error) {
         console.log("Error: ", error);
         res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
@@ -41,7 +41,7 @@ let signin = async (req, res) => {
             return res.status(400).json({ message: "Mật khẩu không chính xác" });
         if (!user.isVerified)
             return res.status(400).json({ message: "Tài khoản chưa được xác thực" });
-        const token = await auth_utils.generateToken(user, res);
+        const token = auth_utils.generateToken(user, res);
         //console.log(user);
         //console.log(token);
         return res.status(200).json({ message: "Đăng nhập thành công" });
@@ -274,7 +274,7 @@ let getNotification = async (req, res) => {
 
 let logout = async (req, res) => {
     try {
-        res.cookie("token", "", { expires: new Date(0), httpOnly: true, secure: true, sameSite: "Strict" });
+        res.cookie("token", "", { expires: new Date(0), secure: true, sameSite: "Strict" });
         // xóa cookie bằng cách đặt thời gian ở quá khứ
         return res.status(200).json({ message: "Đăng xuất thành công!" });
     } catch (error) {

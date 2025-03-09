@@ -12,18 +12,19 @@ const auth_route = require("./route/auth.route.js");
 const story_route = require("./route/story.route.js");
 const genre_route = require("./route/genre.route.js");
 const chapter_route = require("./route/chapter.route.js");
+const search_route = require("./route/search.route.js");
 
 let PORT = process.env.PORT;
 let HOST = process.env.HOST;
 
 let app = express();
 
-// app.use(
-//   cors({
-//     origin: "http://localhost:3000",
-//     credentials: true,
-//   })
-// );
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -31,10 +32,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 connectDatabase();
 
-app.use("/api/auth", auth_route);
-app.use("/api/story", story_route);
-app.use("/api/genre", genre_route);
-app.use("/api/chapter", chapter_route);
+app.use("/auth", auth_route);
+app.use("/story", story_route);
+app.use("/genre", genre_route);
+app.use("/chapter", chapter_route);
+app.use("/search", search_route);
 
 app.get("/", (req, res) => {
   res.end("Hello User");
