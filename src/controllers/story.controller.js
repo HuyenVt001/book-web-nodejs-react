@@ -1,3 +1,5 @@
+const paginate = require("express-paginate");
+
 const db = require("../models/index.js");
 const story_service = require("../services/story.service.js");
 const { where, Op } = require("sequelize");
@@ -85,18 +87,17 @@ let updateGenre = async (req, res) => {
     }
 };
 
-let getInfo = async (req, res) => {
+let getManagedStories = async (req, res) => {
     try {
-        let storyId = req.params.storyId;
-        let story = await db.Stories.findByPk(storyId);
-        if (!story)
-            return res.status(400).json({ message: "Không tìm thấy sách" });
-        return res.status(200).json({ story: story });
+        let managedStories = req.managedStories;
+        if (!managedStories)
+            return res.status(400).json({ message: "Người dùng không quản lý sách nào" });
+        return res.status(200).json({ managedStories: managedStories });
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
     }
-};
+}
 
 let addManager = async (req, res) => {
     try {
@@ -144,36 +145,53 @@ let deleteManager = async (req, res) => {
     }
 }
 
-let getChapter = async (req, res) => {
+let getStory = async (req, res) => {
     try {
-        let story = await db.Stories.findByPk(req.params.storyId, {
-            include: { model: db.Chapters }
-        });
-        if (!story)
-            return res.status(400).json({ message: "Không tìm thấy sách" });
-        return res.status(200).json({ chapters: story.Chapters });
-    } catch (error) {
-        console.log(error);
-        return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
-    }
-}
+        // tìm sách
+        let story = await db.Stories.findByPk(req.params.storyId,
+            {
+                include: [
+                    { model: db.Genres, attributes: ["name"] },
+                    { model: db.Users, as: "Managed", attributes: ["username"] },
+                    {
+                        model: db.Comments,
+                        include: {
+                            model: db.Users,
+                            attributes: ["username", "content", "updatedAt"]
+                        }
+                    }
+                ]
+            }
+        );
+        if (!story) {
+            return res.status(404).json({ message: "Không tìm thấy sách" });
+        }
 
-let getComment = async (req, res) => {
-    try {
-        let story = await db.Stories.findByPk(req.params.storyId, {
-            include: {
-                model: db.Comments,
-                include: { model: db.Users, attributes: "username" }
+        // lấy thông tin các chương và phân trang
+        let page = parseInt(req.params.page) || 1;
+        if (page < 1) page = 1;
+        let limit = 50;
+        let offset = (page - 1) * 50;
+        let { count, rows: chapters } = await db.Chapters.findAndCountAll({
+            where: { storyId: req.params.storyId },
+            attributes: ["chapterNumber", "title", "createdAt"],
+            limit: limit,
+            offset: offset,
+            order: [["createdAt", "ASC"]]
+        });
+        let pageCount = Math.max(Math.ceil(count / limit), 1);
+
+        return res.status(200).json({
+            story: story,
+            chapters: chapters,
+            pagination: {
+                currentPage: page,
+                totalPages: pageCount,
+                totalChapters: count,
+                pageSize: limit,
+                hasNextPage: page < pageCount
             }
         });
-        if (!story)
-            return res.status(400).json({ message: "Không tìm thấy sách" });
-        let listComments = story.Comments.map(comment => ({
-            username: comment.user.username,
-            storyname: story.title,
-            content: comment.content
-        }))
-        return res.status(200).json({ listComments: listComments });
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
@@ -184,11 +202,10 @@ module.exports = {
     postStory,
     updateStory,
     updateImage,
+    getManagedStories,
     updateGenre,
     deleteStory,
-    getInfo,
     addManager,
     deleteManager,
-    getChapter,
-    getComment
+    getStory
 }

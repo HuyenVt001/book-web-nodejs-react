@@ -26,7 +26,7 @@ let isAuthor = async (req, res, next) => {
         //kiểm tra quyền hạn
         let role = decode.roleId;
         if (role > 1)
-            return res.status(400).json("Bạn không có quyền truy cập");
+            return res.status(400).json({ message: "Bạn không có quyền truy cập" });
 
         //check quyền chỉnh sửa
         let check = checkManagedStories(decode.id, req.params.storyId);
@@ -57,7 +57,7 @@ let isAdmin = async (req, res, next) => {
         //kiểm tra quyền hạn
         let role = decode.roleId;
         if (role > 0)
-            return res.status(400).json("Bạn không có quyền truy cập");
+            return res.status(400).json({ message: "Bạn không có quyền truy cập" });
         req.user = await db.Users.findOne({
             where: { id: decode.id }
         });
@@ -81,7 +81,7 @@ let isManager = async (req, res, next) => {
         //check role (admin, author hay manager)
         let role = decode.roleId;
         if (role > 2)
-            return res.status(400).json("Bạn không có quyền truy cập");
+            return res.status(400).json({ message: "Bạn không có quyền truy cập" });
 
         //check quyền chỉnh sửa
         let check = await checkManagedStories(decode.id, req.params.storyId);

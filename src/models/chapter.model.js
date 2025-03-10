@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     }
     Chapters.init(
         {
+            chapterNumber: DataTypes.INTEGER,
             title: DataTypes.STRING,
             content: DataTypes.TEXT,
             storyId: DataTypes.INTEGER,

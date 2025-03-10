@@ -13,6 +13,11 @@ module.exports = {
             // content: DataTypes.TEXT,
             // storyId: DataTypes.INTEGER,
             // views: DataTypes.INTEGER
+            chapterNumber: {
+                allowNull: false,
+                primaryKey: true,
+                type: Sequelize.INTEGER
+            },
             title: {
                 type: Sequelize.STRING
             },

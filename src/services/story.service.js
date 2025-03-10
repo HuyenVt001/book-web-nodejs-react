@@ -130,5 +130,5 @@ module.exports = {
     updateAvatar,
     updateGenre,
     deleteStory,
-    addManager
+    addManager,
 }

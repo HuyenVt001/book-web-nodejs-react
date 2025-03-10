@@ -1,10 +1,13 @@
+const { where } = require("sequelize");
 const db = require("../models/index.js");
 
 let postChapter = async (story, data) => {
     // Nhập dữ liệu
     try {
+        let chapterNumber = story.lastChapterId ? story.lastChapterId + 1 : 1;
         let chapter = await db.Chapters.create({
-            title: data.title,
+            chapterNumber: chapterNumber,
+            title: data.title == null ? `Chương ${chapterNumber}` : data.title,
             content: data.content,
             storyId: story.id,
             views: 0,
@@ -22,7 +25,7 @@ let postChapter = async (story, data) => {
             userId: user.id,
             message: `Sách ${story.title} có chương mới: ${chapter.title}`,
             isRead: false,
-            link: `http://${process.env.HOST}:${process.env.PORT}/api/chapter/get-chapter?chapterId=${chapter.id}`
+            link: `http://${process.env.HOST}:${process.env.PORT}/chapter/get-chapter?chapterId=${chapter.id}`
         }));
 
         await db.Notifications.bulkCreate(notifications);
@@ -36,7 +39,7 @@ let updateChapter = async (data, oldData) => {
         await db.Chapters.update({
             title: data.title == null ? oldData.title : data.title,
             content: data.content == null ? oldData : data.content,
-            updatedAt: Data.now()
+            updatedAt: Date.now()
         });
     } catch (error) {
         console.log(error);

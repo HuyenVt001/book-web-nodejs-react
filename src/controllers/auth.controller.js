@@ -272,6 +272,24 @@ let getNotification = async (req, res) => {
     }
 }
 
+let readNotification = async (req, res) => {
+    try {
+        let notification = await db.Notifications.findByPk(req.params.notificationId);
+        if (!notification)
+            return res.status(400).json({ message: "Không tìm thấy thông báo" });
+        if (notification.userId != req.user.id)
+            return res.status(400).json({ message: "Người dùng không có quyền xem thông báo" });
+        await db.Notifications.update(
+            { isRead: true },
+            { where: { id: notification.id } }
+        );
+        return res.status(200).json({ message: "Đã đọc thông báo" });
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+}
+
 let logout = async (req, res) => {
     try {
         res.cookie("token", "", { expires: new Date(0), secure: true, sameSite: "Strict" });
@@ -299,5 +317,6 @@ module.exports = {
     deleteFavorite,
     getFavorite,
     getNotification,
+    readNotification,
     logout
 }

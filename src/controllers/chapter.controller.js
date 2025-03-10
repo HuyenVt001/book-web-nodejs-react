@@ -1,3 +1,4 @@
+const { where } = require("sequelize");
 const db = require("../models/index.js");
 const chapter_service = require("../services/chapter.service.js");
 
@@ -21,8 +22,12 @@ let postChapter = async (req, res) => {
 
 let updateChapter = async (req, res) => {
     try {
-        let chapterId = req.params.chapterId;
-        let chapter = await db.Chapters.findByPk(chapterId);
+        let chapter = await db.Chapters.findOne({
+            where: {
+                storyId: req.params.storyId,
+                chapterNumber: req.params.chapterNumber
+            }
+        });
         if (!chapter)
             return res.status(400).json({ message: "Không tìm thấy chương sách" });
         await chapter_service.updateChapter(req.body, chapter);
@@ -35,12 +40,19 @@ let updateChapter = async (req, res) => {
 
 let deleteChapter = async (req, res) => {
     try {
-        let chapterId = req.params.chapterId;
-        let chapter = await db.Chapters.findByPk(chapterId);
+        let chapter = await db.Chapters.findOne({
+            where: {
+                storyId: req.params.storyId,
+                chapterNumber: req.params.chapterNumber
+            }
+        });
         if (!chapter)
             return res.status(400).json({ message: "Không tìm thấy chương sách" });
         await db.Chapters.destroy({
-            where: { id: chapterId }
+            where: {
+                storyId: req.params.storyId,
+                chapterNumber: req.params.chapterNumber
+            }
         });
         return res.status(200).json({ message: "Xóa chương thành công" });
     } catch (error) {
@@ -51,8 +63,12 @@ let deleteChapter = async (req, res) => {
 
 let getChapter = async (req, res) => {
     try {
-        let chapterId = req.params.chapterId;
-        let chapter = await db.Chapters.findByPk(chapterId);
+        let chapter = await db.Chapters.findOne({
+            where: {
+                storyId: req.params.storyId,
+                chapterNumber: req.params.chapterNumber
+            }
+        });
         if (!chapter)
             return res.status(400).json({ message: "Không tìm thấy chương sách" });
         return res.status(200).json({ chapter: chapter });

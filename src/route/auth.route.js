@@ -34,6 +34,7 @@ route.get("/get-favorite", checkLogin, auth_controller.getFavorite);
 route.post("/delete-favorite/:storyId", checkLogin, auth_controller.deleteFavorite);
 
 route.get("/get-notification", checkLogin, auth_controller.getNotification);
+route.get("/read-notification/:notificationId", checkLogin, auth_controller.readNotification);
 
 module.exports = route;
 

@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const paginate = require("express-paginate");
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use(
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(paginate.middleware(25, 50));
 
 connectDatabase();
 
@@ -39,7 +41,7 @@ app.use("/chapter", chapter_route);
 app.use("/search", search_route);
 
 app.get("/", (req, res) => {
-  res.end("Hello User");
+  res.send("Hello User");
 })
 
 app.listen(PORT, () => {

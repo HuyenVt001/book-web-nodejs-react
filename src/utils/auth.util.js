@@ -36,7 +36,7 @@ let generateToken = (user, res) => {
 
 let sendVerificationMail = async (id, email) => {
     const verificationToken = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "5m" });
-    const verificationLink = `http://${process.env.HOST}:${process.env.PORT}/api/auth/verify-email?token=${verificationToken}`;
+    const verificationLink = `http://${process.env.HOST}:${process.env.PORT}/auth/verify-email?token=${verificationToken}`;
     //console.log(verificationLink);
     await transporter.sendMail({
         from: `<${process.env.EMAIL_ACCOUNT}>`,
