@@ -15,7 +15,7 @@ module.exports = {
             },
             authorName: {
                 allowNull: false,
-                type: Sequelize.INTEGER
+                type: Sequelize.STRING
             },
             description: {
                 type: Sequelize.TEXT
@@ -24,6 +24,11 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.INTEGER
             },
+            /* 
+                0: completed
+                1: on-going
+                2: drop
+            */
             lastestChapterId: {
                 allowNull: false,
                 type: Sequelize.INTEGER
