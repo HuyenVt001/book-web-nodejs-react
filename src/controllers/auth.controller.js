@@ -35,16 +35,18 @@ let signin = async (req, res) => {
         if (!usernameOrEmail || !password)
             return res.status(400).json({ message: "Thiếu các trường cần thiết" });
         let user = await auth_services.getUserByUsernameOrEmailAndPassword(req.body);
-        if (user == 0)
-            return res.status(400).json("Người dùng không tồn tại");
-        if (user == 1)
-            return res.status(400).json({ message: "Mật khẩu không chính xác" });
+        if (!user)
+            return res.status(400).json({ message: "Tên đăng nhập chưa chính xác hoặc tài khoản không tồn tại" });
+        if (await auth_services.checkPassword(password, user.password) == false)
+            return res.status(400).json({ message: "Mật khẩu chưa chính xác" });
         if (!user.isVerified)
             return res.status(400).json({ message: "Tài khoản chưa được xác thực" });
-        const token = auth_utils.generateToken(user, res);
-        //console.log(user);
-        //console.log(token);
-        return res.status(200).json({ message: "Đăng nhập thành công" });
+        else {
+            const token = auth_utils.generateToken(user, res);
+            //console.log(user);
+            //console.log(token);
+            return res.status(200).json({ message: "Đăng nhập thành công" });
+        }
     } catch (error) {
         console.log("Error: ", error);
     }

@@ -39,10 +39,6 @@ let getUserByUsernameOrEmailAndPassword = async (data) => {
                 ]
             }
         });
-        if (!user) {
-            return 0;
-        }
-        if (!checkPassword(data.password, user.password)) return 1;
         return user;
     } catch (error) {
         console.log("Error: ", error);

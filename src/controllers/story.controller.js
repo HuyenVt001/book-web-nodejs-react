@@ -153,12 +153,14 @@ let getStory = async (req, res) => {
                 include: [
                     { model: db.Genres, attributes: ["name"] },
                     { model: db.Users, as: "Managed", attributes: ["username"] },
+                    { model: db.Chapters, attributes: ["chapterNumber", "title"] },
                     {
                         model: db.Comments,
                         include: {
                             model: db.Users,
-                            attributes: ["username", "content", "updatedAt"]
-                        }
+                            attributes: ["username"]
+                        },
+                        attributes: ["content", "updatedAt"]
                     }
                 ]
             }
@@ -167,30 +169,8 @@ let getStory = async (req, res) => {
             return res.status(404).json({ message: "Không tìm thấy sách" });
         }
 
-        // lấy thông tin các chương và phân trang
-        let page = parseInt(req.params.page) || 1;
-        if (page < 1) page = 1;
-        let limit = 50;
-        let offset = (page - 1) * 50;
-        let { count, rows: chapters } = await db.Chapters.findAndCountAll({
-            where: { storyId: req.params.storyId },
-            attributes: ["chapterNumber", "title", "createdAt"],
-            limit: limit,
-            offset: offset,
-            order: [["createdAt", "ASC"]]
-        });
-        let pageCount = Math.max(Math.ceil(count / limit), 1);
-
         return res.status(200).json({
             story: story,
-            chapters: chapters,
-            pagination: {
-                currentPage: page,
-                totalPages: pageCount,
-                totalChapters: count,
-                pageSize: limit,
-                hasNextPage: page < pageCount
-            }
         });
     } catch (error) {
         console.log(error);
