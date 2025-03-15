@@ -7,7 +7,7 @@ const { where, Op } = require("sequelize");
 let postStory = async (req, res) => {
     try {
         console.log(req.body);
-        if (!req.body.title || !req.body.authorName || !req.body.listGenres)
+        if (!req.body.title || !req.body.authorName || !req.body.genre)
             return res.status(400).json({ message: "Thiếu thông tin bắt buộc" });
         let story = await db.Stories.findOne({
             where: {
@@ -19,7 +19,7 @@ let postStory = async (req, res) => {
         });
         if (story)
             return res.status(400).json({ message: "Sách đã tồn tại" });
-        await story_service.postStory(req.user.id, req.body, req.body.listGenres);
+        await story_service.postStory(req.user.id, req.body);
         return res.status(200).json({ message: "Thêm sách mới thành công" });
     } catch (error) {
         console.log(error);
@@ -55,41 +55,9 @@ let deleteStory = async (req, res) => {
     }
 };
 
-let updateImage = async (req, res) => {
-    try {
-        let avatar = req.body.avatar;
-        if (!avatar)
-            return res.status(400).json({ message: "Yêu cầu ảnh bìa" });
-        let story = await db.Stories.findByPk(req.params.storyI);
-        if (!story)
-            return res.status(400).json({ message: "Không tìm thấy sách" });
-        await story_service.updateAvatar(story.id, avatar);
-        return res.status(200).json({ message: "Thay đổi ảnh bìa thành công" });
-    } catch (error) {
-        console.log(error);
-        return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
-    }
-};
-
-let updateGenre = async (req, res) => {
-    try {
-        let listGenres = req.body.listGenres;
-        if (!listGenres)
-            return res.status(400).json({ message: "Yêu cầu chọn các thể loại" });
-        let story = await db.Stories.findByPk(req.params.storyId, { include: { model: db.Genres } });
-        if (!story)
-            return res.status(400).json({ message: "Không tìm thấy sách" });
-        await story_service.updateGenre(story, listGenres);
-        return res.status(200).json({ message: "Cập nhật thể loại thành công" });
-    } catch (error) {
-        console.log(error);
-        return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
-    }
-};
-
 let getManagedStories = async (req, res) => {
     try {
-        let managedStories = req.managedStories;
+        let managedStories = await req.user.getManaged();
         if (!managedStories)
             return res.status(400).json({ message: "Người dùng không quản lý sách nào" });
         return res.status(200).json({ managedStories: managedStories });
@@ -147,30 +115,56 @@ let deleteManager = async (req, res) => {
 
 let getStory = async (req, res) => {
     try {
-        // tìm sách
-        let story = await db.Stories.findByPk(req.params.storyId,
-            {
+        const page = parseInt(req.params.page) || 1;
+        const limit = 20;
+        const offset = (page - 1) * limit;
+
+        // tìm sách và count tổng số comments
+        let [story, totalComments] = await Promise.all([
+            db.Stories.findByPk(req.params.storyId, {
                 include: [
-                    { model: db.Genres, attributes: ["name"] },
-                    { model: db.Users, as: "Managed", attributes: ["username"] },
-                    { model: db.Chapters, attributes: ["chapterNumber", "title"] },
+                    { model: db.Genres, attributes: ["name"] }, // lấy thể loại
+                    { model: db.Users, as: "Managed", attributes: ["username"] }, // lấy người quản lý
+                    { model: db.Chapters, attributes: ["chapterNumber", "title"] }, // lấy các chương
                     {
-                        model: db.Comments,
+                        model: db.Comments, // lấy bình luận
                         include: {
                             model: db.Users,
                             attributes: ["username"]
                         },
-                        attributes: ["content", "updatedAt"]
+                        attributes: ["content", "updatedAt"],
+                        limit: limit,
+                        offset: offset,
+                        order: [['updatedAt', 'DESC']] // Sắp xếp comment mới nhất lên đầu
                     }
                 ]
-            }
-        );
+            }),
+            db.Comments.count({
+                where: { storyId: req.params.storyId }
+            })
+        ]);
+
         if (!story) {
             return res.status(404).json({ message: "Không tìm thấy sách" });
         }
 
+        // Tính toán thông tin pagination
+        const totalPages = Math.ceil(totalComments / limit);
+        const hasNextPage = page < totalPages;
+        const hasPrevPage = page > 1;
+
         return res.status(200).json({
             story: story,
+            pagination: {
+                currentPage: page,
+                limit: limit,
+                totalItems: totalComments,
+                totalPages: totalPages,
+                hasNextPage: hasNextPage,
+                hasPrevPage: hasPrevPage,
+                nextPage: hasNextPage ? page + 1 : null,
+                prevPage: hasPrevPage ? page - 1 : null
+            }
         });
     } catch (error) {
         console.log(error);
@@ -181,9 +175,7 @@ let getStory = async (req, res) => {
 module.exports = {
     postStory,
     updateStory,
-    updateImage,
     getManagedStories,
-    updateGenre,
     deleteStory,
     addManager,
     deleteManager,

@@ -303,14 +303,33 @@ let logout = async (req, res) => {
     }
 }
 
+let getAuthStatus = async (req, res) => {
+    try {
+        // Lấy thông tin user từ middleware verifyToken
+        const user = {
+            id: req.user.id,
+            username: req.user.username,
+            email: req.user.email,
+            avatar: req.user.avatar,
+            isVerified: req.user.isVerified
+        };
+        return res.status(200).json({ user });
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+};
+
 module.exports = {
     signup,
     signin,
     verifyEmail,
     resetPassword,
+    getAuthStatus,
+    logout,
+    updateUsername,
     updateAvatar,
     updatePassword,
-    updateUsername,
     postComment,
     updateComment,
     deleteComment,
@@ -319,6 +338,5 @@ module.exports = {
     deleteFavorite,
     getFavorite,
     getNotification,
-    readNotification,
-    logout
+    readNotification
 }
