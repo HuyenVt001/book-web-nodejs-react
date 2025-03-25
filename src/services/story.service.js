@@ -93,6 +93,8 @@ let updateGenre = async (storyId, genre) => {
 let deleteStory = async (user, story) => {
     try {
         await user.removeManaged(story);
+        let genres = await story.getGenres();
+        await story.removeGenres(genres);
         await db.Stories.destroy({
             where: { id: story.id }
         });

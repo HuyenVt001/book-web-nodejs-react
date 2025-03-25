@@ -172,6 +172,19 @@ let getStory = async (req, res) => {
     }
 }
 
+let getChapterByStory = async (req, res) => {
+    try {
+        let story = await db.Stories.findByPk(req.params.storyId);
+        if (!story)
+            return res.status(400).json({ message: "Không tìm thấy sách" });
+        let chapters = await story.getChapters();
+        return res.status(200).json({ chapters: chapters, message: "Lấy danh sách chương thành công" });
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+}
+
 module.exports = {
     postStory,
     updateStory,
@@ -179,5 +192,6 @@ module.exports = {
     deleteStory,
     addManager,
     deleteManager,
-    getStory
+    getStory,
+    getChapterByStory
 }
