@@ -20,15 +20,19 @@ module.exports = {
             description: {
                 type: Sequelize.TEXT
             },
-            statusId: {
+            status: {
                 allowNull: false,
-                type: Sequelize.INTEGER
+                type: Sequelize.STRING
             },
             /* 
                 0: completed
                 1: on-going
                 2: drop
             */
+            genre: {
+                allowNull: false,
+                type: Sequelize.STRING
+            },
             lastestChapterId: {
                 allowNull: false,
                 type: Sequelize.INTEGER

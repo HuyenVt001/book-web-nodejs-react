@@ -14,6 +14,7 @@ route.get("/managed-stories", checkLogin, story_controller.getManagedStories);
 route.post("/add-manager/:storyId", check_role.isAuthor, story_controller.addManager);
 route.post("/delete-manager/:storyId", check_role.isAuthor, story_controller.deleteManager);
 
+route.get("/:storyId", story_controller.getStoryById);
 route.get("/:storyId/:page", story_controller.getStory);
 route.get("/chapter/:storyId", story_controller.getChapterByStory);
 

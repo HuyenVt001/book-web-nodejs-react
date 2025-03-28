@@ -15,7 +15,8 @@ let postStory = async (req, res) => {
                     { title: req.body.title },
                     { authorName: req.body.authorName }
                 ]
-            }
+            },
+            attributes: ['id']
         });
         if (story)
             return res.status(400).json({ message: "Sách đã tồn tại" });
@@ -29,11 +30,16 @@ let postStory = async (req, res) => {
 
 let updateStory = async (req, res) => {
     try {
-        let story = await db.Stories.findByPk(req.params.storyId);
+        let story = await db.Stories.findOne(
+            {
+                where: { id: req.params.storyId },
+                attributes: ['title', 'authorName']
+            }
+        );
         //console.log(story);
         if (!story)
             return res.status(400).json({ message: "Không tìm thấy sách" });
-        await story_service.updateStory(req.body, story);
+        await story_service.updateStory(req.body, req.params.storyId);
         return res.status(200).json({ message: "Cập nhật thông tin sách thành công" });
     } catch (error) {
         console.log(error);
@@ -123,7 +129,6 @@ let getStory = async (req, res) => {
         let [story, totalComments] = await Promise.all([
             db.Stories.findByPk(req.params.storyId, {
                 include: [
-                    { model: db.Genres, attributes: ["name"] }, // lấy thể loại
                     { model: db.Users, as: "Managed", attributes: ["username"] }, // lấy người quản lý
                     { model: db.Chapters, attributes: ["chapterNumber", "title"] }, // lấy các chương
                     {
@@ -172,6 +177,18 @@ let getStory = async (req, res) => {
     }
 }
 
+let getStoryById = async (req, res) => {
+    try {
+        const story = await db.Stories.findByPk(req.params.storyId);
+        if (!story)
+            return res.status(400).json({ message: "Không tìm thấy sách" });
+        return res.status(200).json({ story: story });
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+};
+
 let getChapterByStory = async (req, res) => {
     try {
         let story = await db.Stories.findByPk(req.params.storyId);
@@ -193,5 +210,6 @@ module.exports = {
     addManager,
     deleteManager,
     getStory,
-    getChapterByStory
+    getChapterByStory,
+    getStoryById
 }

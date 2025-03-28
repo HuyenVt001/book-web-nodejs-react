@@ -2,7 +2,9 @@
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Genres extends Model {
-        static associate(models) { }
+        static associate(models) {
+            Genres.hasMany(models.Stories, { foreignKey: 'name', as: 'Stories' });
+        }
     }
     Genres.init(
         {
@@ -16,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     );
     Genres.associate = (models) => {
-        Genres.belongsToMany(models.Stories, {through: "Story_Genre", foreignKey: 'genreId', otherKey: 'storyId'})
+        Genres.belongsToMany(models.Stories, { through: "Story_Genre", foreignKey: 'genreId', otherKey: 'storyId' })
     }
     return Genres;
 };

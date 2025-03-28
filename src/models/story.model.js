@@ -6,7 +6,8 @@ module.exports = (sequelize, DataTypes) => {
             Stories.belongsToMany(models.Users, { through: 'FavoriteStories', as: 'Favorites', foreignKey: 'storyId', otherKey: 'userId' });
             Stories.belongsToMany(models.Users, { through: 'ManagedStories', as: 'Managed', foreignKey: 'storyId', otherKey: 'userId' });
             Stories.belongsToMany(models.Genres, { through: 'Story_Genre', foreignKey: 'storyId', otherKey: 'genreId' });
-            Stories.hasMany(models.Chapters, { foreignKey: 'storyId', as: 'Chapters' })
+            Stories.hasMany(models.Chapters, { foreignKey: 'storyId', as: 'Chapters' });
+            Stories.belongsTo(models.Genres, { foreignKey: 'genre', as: 'Genre' })
         }
     }
     Stories.init(
@@ -14,7 +15,12 @@ module.exports = (sequelize, DataTypes) => {
             title: DataTypes.STRING,
             authorName: DataTypes.STRING,
             description: DataTypes.TEXT,
-            statusId: DataTypes.INTEGER,
+            status: DataTypes.STRING,
+            /**
+             * Completed
+             * On-going
+             */
+            genre: DataTypes.STRING,
             lastestChapterId: DataTypes.INTEGER,
             image: DataTypes.STRING,
             views: DataTypes.INTEGER

@@ -12,12 +12,16 @@ let signup = async (req, res) => {
     try {
         if (!username || !password || !email)
             return res.status(400).json({ message: "Thiếu các trường cần thiết" });
-        let userByUsername = await db.Users.findOne({ where: { username } });
-        let userByEmail = await db.Users.findOne({ where: { email } });
-        if (userByUsername)
-            return res.status(400).json({ message: "Username đã tồn tại" });
-        if (userByEmail)
-            return res.status(400).json({ message: "Email đã được sử dụng" });
+        let user = await db.Users.findOne({
+            where: {
+                [Op.or]: [
+                    { username: data.username },
+                    { email: data.email }
+                ]
+            }
+        });
+        if (user)
+            return res.status(400).json({ message: "Email hoặc tài khoản đã được sử dụng" });
         if (password.length < 6)
             return res.status(400).json({ message: "Mật khẩu phải chứa ít nhất 6 ký tự" });
         let newUser = await auth_services.createNewUser({ username, password, email });
@@ -45,7 +49,7 @@ let signin = async (req, res) => {
             const token = auth_utils.generateToken(user, res);
             //console.log(user);
             //console.log(token);
-            return res.status(200).json({ message: "Đăng nhập thành công" });
+            return res.status(200).json({ message: "Đăng nhập thành công", token: token });
         }
     } catch (error) {
         console.log("Error: ", error);

@@ -48,7 +48,7 @@ let sendVerificationMail = async (id, email) => {
 }
 
 let sendResetPasswordMail = async (id, email, randomPassword) => {
-    const verificationToken = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "5m" });
+    const verificationToken = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30m" });
     //console.log(verificationLink);
     await transporter.sendMail({
         from: `<${process.env.EMAIL_ACCOUNT}>`,
