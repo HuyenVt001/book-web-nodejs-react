@@ -179,15 +179,33 @@ let getStory = async (req, res) => {
 
 let getStoryById = async (req, res) => {
     try {
-        const story = await db.Stories.findByPk(req.params.storyId);
-        if (!story)
-            return res.status(400).json({ message: "Không tìm thấy sách" });
-        return res.status(200).json({ story: story });
+        let story = await Promise.all([
+            db.Stories.findByPk(req.params.storyId, {
+                include: [
+                    { model: db.Users, as: "Managed", attributes: ["username"] }, // lấy người quản lý
+                    { model: db.Chapters, as: "Chapters", attributes: ["id", "chapterNumber", "title", "createdAt"] }, // lấy các chương
+                ],
+                attributes: ['id', 'title', 'authorName', 'status', 'image', 'genre', 'description', 'createdAt']
+            }),
+        ]);
+
+        let comments = await db.Comments.findAll({
+            where: { storyId: req.params.storyId }
+        });
+
+        if (!story) {
+            return res.status(404).json({ message: "Không tìm thấy sách" });
+        }
+
+        return res.status(200).json({
+            story: story,
+            comments: comments
+        });
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
     }
-};
+}
 
 let getChapterByStory = async (req, res) => {
     try {

@@ -4,21 +4,25 @@ const db = require("../models/index.js");
 let postChapter = async (story, data) => {
     // Nhập dữ liệu
     try {
-        let chapterNumber = story.lastChapterId ? story.lastChapterId + 1 : 1;
+        let chapterNumber = parseInt(story.lastestChapterId) + 1;
         let chapter = await db.Chapters.create({
             chapterNumber: chapterNumber,
-            title: data.title == null ? `Chương ${chapterNumber}` : data.title,
+            title: data.title,
             content: data.content,
             storyId: story.id,
             views: 0,
             createdAt: Date.now(),
             updatedAt: Date.now()
         });
+        await db.Stories.update(
+            { lastChapterId: chapterNumber },
+            { where: { id: story.id } }
+        )
         // Gửi thông báo
         let findStory = db.Stories.findByPk(story.id, {
             include: { model: db.Users, as: "Favorites" }
         });
-        if (findStory.Favorites.length === 0) {
+        if (findStory.Favorites === null) {
             return;
         }
         let notifications = story.Favorites.map(user => ({

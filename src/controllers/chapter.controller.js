@@ -63,15 +63,24 @@ let deleteChapter = async (req, res) => {
 
 let getChapter = async (req, res) => {
     try {
-        let chapter = await db.Chapters.findOne({
-            where: {
-                storyId: req.params.storyId,
-                chapterNumber: req.params.chapterNumber
+        let story = await db.Stories.findOne(
+            {
+                where: { id: req.params.storyId },
+                attributes: ["title", "lastestChapterId"]
             }
-        });
+        )
+        let chapter = await db.Chapters.findOne(
+            {
+                where: {
+                    storyId: req.params.storyId,
+                    chapterNumber: req.params.chapterNumber
+                },
+                attributes: ['id', 'chapterNumber', 'title', 'content', 'storyId']
+            }
+        );
         if (!chapter)
             return res.status(400).json({ message: "Không tìm thấy chương sách" });
-        return res.status(200).json({ chapter: chapter });
+        return res.status(200).json({ chapter: chapter, story: story });
     } catch (error) {
         console.log(error);
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });

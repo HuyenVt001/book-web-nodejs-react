@@ -6,7 +6,7 @@ require("dotenv").config();
 let checkLogin = async (req, res, next) => {
     try {
         let authHeader = req.headers.authorization;
-        console.log(authHeader);
+        //console.log(authHeader);
         if (!authHeader || !authHeader.startsWith("Bearer "))
             return res.status(401).json({ message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục" });
         let token = authHeader.replace("Bearer ", "");
