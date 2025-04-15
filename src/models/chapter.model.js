@@ -13,7 +13,13 @@ module.exports = (sequelize, DataTypes) => {
             title: DataTypes.STRING,
             content: DataTypes.TEXT,
             storyId: DataTypes.INTEGER,
-            views: DataTypes.INTEGER
+            views: DataTypes.INTEGER,
+            isApproved: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+                comment: 'Trạng thái kiểm duyệt của chương'
+            }
         },
         {
             sequelize,

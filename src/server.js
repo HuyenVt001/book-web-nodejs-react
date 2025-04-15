@@ -14,7 +14,7 @@ const story_route = require("./route/story.route.js");
 const genre_route = require("./route/genre.route.js");
 const chapter_route = require("./route/chapter.route.js");
 const search_route = require("./route/search.route.js");
-
+const admin_route = require("./route/admin.route.js");
 let PORT = process.env.PORT;
 let HOST = process.env.HOST;
 
@@ -34,6 +34,7 @@ app.use(paginate.middleware(25, 50));
 
 connectDatabase();
 
+app.use("/admin", admin_route);
 app.use("/auth", auth_route);
 app.use("/story", story_route);
 app.use("/genre", genre_route);

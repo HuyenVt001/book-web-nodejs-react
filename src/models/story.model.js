@@ -22,7 +22,13 @@ module.exports = (sequelize, DataTypes) => {
             genre: DataTypes.STRING,
             lastestChapterId: DataTypes.INTEGER,
             image: DataTypes.STRING,
-            views: DataTypes.INTEGER
+            views: DataTypes.INTEGER,
+            isApproved: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+                comment: 'Trạng thái kiểm duyệt của truyện'
+            }
         },
         {
             sequelize,
