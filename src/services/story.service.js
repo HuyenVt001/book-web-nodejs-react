@@ -11,6 +11,7 @@ let postStory = async (userId, data) => {
             status: "Đang ra",
             genre: data.genre,
             lastestChapterId: 0,
+            isApproved: false,
             createdAt: Date.now(),
             updatedAt: Date.now()
         });
@@ -39,6 +40,7 @@ let updateStory = async (data, storyId) => {
                 description: data.description,
                 status: data.status,
                 genre: data.genre,
+                isApproved: false,
                 updatedAt: Date.now()
             },
             {

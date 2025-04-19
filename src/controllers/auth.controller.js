@@ -192,8 +192,7 @@ let deleteComment = async (req, res) => {
         let comment = await db.Comments.findByPk(req.params.commentId);
         if (!comment)
             return res.status(400).json({ message: "Không tìm thấy bình luận" });
-        if (req.user.id != comment.userId)
-            return res.status(400).json({ message: "Người dùng không có quyền xóa bình luận" });
+        comment.removeUsers();
         await db.Comments.destroy({ where: { id: comment.id } });
         return res.status(200).json({ message: "Xóa bình luận thành công" });
     } catch (error) {
@@ -202,10 +201,18 @@ let deleteComment = async (req, res) => {
     }
 }
 
-let getComment = async (req, res) => {
+let getCommentByUsernameOrEmail = async (req, res) => {
     try {
+        let user = await db.Users.findOne({
+            where: {
+                [Op.or]: [
+                    { username: req.usernameOrEmail },
+                    { email: req.usernameOrEmail }
+                ]
+            }
+        });
         let comments = await db.Comments.findAll({
-            where: { userId: req.user.id }
+            where: { userId: user.id }
         });
         let listComments = [];
         for (let comment of comments) {
@@ -218,6 +225,30 @@ let getComment = async (req, res) => {
         return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
     }
 }
+
+let getAllComments = async (req, res) => {
+    try {
+        const comments = await db.Comments.findAll({
+            include: [
+                {
+                    model: db.Users,
+                    as: 'Users',
+                    attributes: ['id', 'username']
+                },
+                {
+                    model: db.Stories,
+                    as: 'Stories',
+                    attributes: ['id', 'title']
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+        return res.status(200).json({ comments });
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+};
 
 let addFavorite = async (req, res) => {
     try {
@@ -337,7 +368,8 @@ module.exports = {
     postComment,
     updateComment,
     deleteComment,
-    getComment,
+    getAllComments,
+    getCommentByUsernameOrEmail,
     addFavorite,
     deleteFavorite,
     getFavorite,

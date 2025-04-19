@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
             Stories.belongsToMany(models.Users, { through: 'ManagedStories', as: 'Managed', foreignKey: 'storyId', otherKey: 'userId' });
             Stories.hasMany(models.Chapters, { foreignKey: 'storyId', as: 'Chapters' });
             Stories.belongsTo(models.Genres, { foreignKey: 'genre', as: 'Genre' })
+            Stories.hasMany(models.Comments, { foreignKey: 'storyId', as: 'Comments' })
         }
     }
     Stories.init(

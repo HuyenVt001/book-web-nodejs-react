@@ -7,12 +7,8 @@ const path = require('path');
 
 let postChapter = async (req, res) => {
     try {
-        const { title, storyId } = req.body;
+        const { title, content, storyId } = req.body;
         const file = req.file;
-
-        if (!file) {
-            return res.status(400).json({ message: "Vui lòng tải lên file" });
-        }
 
         if (!title || !storyId) {
             return res.status(400).json({ message: "Vui lòng nhập đầy đủ thông tin" });
@@ -24,45 +20,10 @@ let postChapter = async (req, res) => {
             return res.status(404).json({ message: "Không tìm thấy truyện" });
         }
 
-        // Kiểm tra chapter số đã tồn tại
-        const lastChapter = await db.Chapters.findOne({
-            where: { storyId },
-            order: [['chapterNumber', 'DESC']]
-        });
-
-        const chapterNumber = lastChapter ? lastChapter.chapterNumber + 1 : 1;
-
-        let content = '';
-        const fileExtension = path.extname(file.originalname).toLowerCase();
-
-        // Xử lý file dựa trên định dạng
-        if (fileExtension === '.docx') {
-            const result = await mammoth.extractRawText({ buffer: file.buffer });
-            content = result.value;
-        } else if (fileExtension === '.txt') {
-            content = file.buffer.toString('utf-8');
-        } else {
-            return res.status(400).json({ message: "Định dạng file không được hỗ trợ. Vui lòng tải lên file .docx hoặc .txt" });
-        }
-
-        // Tạo chapter mới
-        const newChapter = await db.Chapters.create({
-            title,
-            content,
-            chapterNumber,
-            storyId
-        });
+        await chapter_service.postChapter(title, content, story, file);
 
         return res.status(201).json({
             message: "Tạo chương mới thành công",
-            chapter: {
-                id: newChapter.id,
-                title: newChapter.title,
-                chapterNumber: newChapter.chapterNumber,
-                storyId: newChapter.storyId,
-                status: newChapter.status,
-                createdAt: newChapter.createdAt
-            }
         });
     } catch (error) {
         console.error('Error:', error);
@@ -137,9 +98,47 @@ let getChapter = async (req, res) => {
     }
 }
 
+let getAllChapters = async (req, res) => {
+    try {
+        const chapters = await db.Chapters.findAll({
+            include: [{
+                model: db.Stories,
+                as: 'Story',
+                attributes: ['id', 'title']
+            }],
+            order: [['createdAt', 'DESC']]
+        });
+        return res.status(200).json({ chapters });
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+};
+
+let getChapterById = async (req, res) => {
+    try {
+        const chapter = await db.Chapters.findByPk(req.params.chapterId, {
+            include: [{
+                model: db.Stories,
+                as: 'story',
+                attributes: ['id', 'title']
+            }]
+        });
+        if (!chapter) {
+            return res.status(404).json({ message: "Không tìm thấy chương" });
+        }
+        return res.status(200).json({ chapter });
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+};
+
 module.exports = {
     postChapter,
     updateChapter,
     deleteChapter,
-    getChapter
+    getChapter,
+    getAllChapters,
+    getChapterById
 }

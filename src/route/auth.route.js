@@ -27,7 +27,7 @@ route.post("/post-comment/:storyId", checkLogin, auth_controller.postComment);
 route.post("/update-comment/:commentId", checkLogin, auth_controller.updateComment);
 // request body cần có content
 route.post("/delete-comment/:commentId", checkLogin, auth_controller.deleteComment);
-route.get("/get-comment", checkLogin, auth_controller.getComment);
+route.get("/get-comment", checkLogin, auth_controller.getCommentByUsernameOrEmail);
 
 route.post("/add-favorite/:storyId", checkLogin, auth_controller.addFavorite);
 route.get("/get-favorite", checkLogin, auth_controller.getFavorite);
