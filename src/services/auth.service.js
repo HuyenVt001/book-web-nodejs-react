@@ -63,7 +63,6 @@ let postComment = async (user, story, content) => {
             userId: user.id,
             storyId: story.id,
             content: content,
-            isAppoved: false,
             createdAt: Date.now(),
             updatedAt: Date.now()
         });

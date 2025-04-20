@@ -11,8 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         {
             userId: DataTypes.INTEGER,
             storyId: DataTypes.INTEGER,
-            content: DataTypes.TEXT,
-            isApproved: DataTypes.BOOLEAN
+            content: DataTypes.TEXT
         },
         {
             sequelize,
