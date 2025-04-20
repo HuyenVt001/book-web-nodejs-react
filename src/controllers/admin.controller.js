@@ -5,7 +5,7 @@ const cloudinary = require("../config/cloudinary.js");
 let getAllUsers = async (req, res) => {
     try {
         const users = await db.Users.findAll({
-            attributes: ['id', 'username', 'email', 'isVerified', 'createdAt'],
+            attributes: ['id', 'username', 'email', 'roleId', 'isVerified', 'createdAt'],
             order: [['createdAt', 'DESC']]
         });
         return res.status(200).json({ users: users });
@@ -29,6 +29,40 @@ let getUserById = async (req, res) => {
         return res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
     }
 };
+
+let addAdminRole = async (req, res) => {
+    try {
+        const user = await db.Users.findByPk(req.params.userId);
+        if (!user) {
+            return res.status(404).json({ message: "Không tìm thấy người dùng" });
+        }
+
+        await user.update(
+            { roleId: 0 }
+        )
+        return res.status(200).json({ message: "Cập nhật thành công" });
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+}
+
+let deleteAdminRole = async (req, res) => {
+    try {
+        const user = await db.Users.findByPk(req.params.userId);
+        if (!user) {
+            return res.status(404).json({ message: "Không tìm thấy người dùng" });
+        }
+
+        await user.update(
+            { roleId: 3 }
+        )
+        return res.status(200).json({ message: "Cập nhật thành công" });
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+}
 
 let deleteUser = async (req, res) => {
     try {
@@ -176,6 +210,8 @@ let getPendingChapters = async (req, res) => {
 module.exports = {
     getAllUsers,
     getUserById,
+    addAdminRole,
+    deleteAdminRole,
     deleteUser,
 
     approveStory,

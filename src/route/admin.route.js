@@ -8,6 +8,8 @@ const check_role = require("../middleware/check-role.js");
 
 router.get("/users", check_role.isAdmin, admin_controller.getAllUsers);
 router.get("/users/:userId", check_role.isAdmin, admin_controller.getUserById);
+router.get("/users/:userId/role", check_role.isAdmin, admin_controller.addAdminRole);
+router.get("/users/:userId/delete-role", check_role.isAdmin, admin_controller.deleteAdminRole);
 router.delete("/users/:userId", check_role.isAdmin, admin_controller.deleteUser);
 
 router.get("/stories", check_role.isAdmin, story_controller.getAllStories);
