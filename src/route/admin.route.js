@@ -12,7 +12,7 @@ router.get("/users/:userId/role", check_role.isAdmin, admin_controller.addAdminR
 router.get("/users/:userId/delete-role", check_role.isAdmin, admin_controller.deleteAdminRole);
 router.delete("/users/:userId", check_role.isAdmin, admin_controller.deleteUser);
 
-router.get("/stories", check_role.isAdmin, story_controller.getAllStories);
+router.get("/stories", check_role.isAdmin, story_controller.getStory);
 router.get("/stories/:storyId", check_role.isAdmin, story_controller.getStoryById);
 router.put("/stories/:storyId", check_role.isAdmin, story_controller.updateStory);
 router.delete("/stories/:storyId", check_role.isAdmin, story_controller.deleteStory);
