@@ -130,9 +130,9 @@ let getStory = async (req, res) => {
                 {
                     limit: limit,
                     offset: offset,
-                    attributes: ["title", "description", "genre", "authorName", "popular", "image"]
-                },
-                { where: { isApproved: 1 } }
+                    where: { isApproved: 1 },
+                    attributes: ["title", "description", "genre", "authorName", "popular", "image", "id"]
+                }
             ),
             db.Stories.count()
         ]);
