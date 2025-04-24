@@ -173,7 +173,7 @@ let getStory = async (req, res) => {
                 limit: limit,
                 offset: offset,
                 include: [
-                    { attributes: ["image", "title", "description", "genre"] }
+                    { attributes: ["image", "title", "description", "genre", "popular"] }
                 ]
             }),
             db.Stories.count()
