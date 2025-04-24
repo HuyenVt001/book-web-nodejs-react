@@ -29,7 +29,8 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: false,
                 defaultValue: false,
                 comment: 'Trạng thái kiểm duyệt của truyện'
-            }
+            },
+            popular: DataTypes.BOOLEAN
         },
         {
             sequelize,

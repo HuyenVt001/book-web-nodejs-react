@@ -168,45 +168,32 @@ let getStory = async (req, res) => {
         const limit = 20;
         const offset = (page - 1) * limit;
 
-        // tìm sách và count tổng số comments
-        let [story, totalComments] = await Promise.all([
-            db.Stories.findByPk(req.params.storyId, {
+        let [stories, totalStories] = await Promise.all([
+            db.Stories.findAll({
+                limit: limit,
+                offset: offset,
                 include: [
-                    { model: db.Users, as: "Managed", attributes: ["username"] }, // lấy người quản lý
-                    { model: db.Chapters, attributes: ["chapterNumber", "title"] }, // lấy các chương
-                    {
-                        model: db.Comments, // lấy bình luận
-                        include: {
-                            model: db.Users,
-                            attributes: ["username"]
-                        },
-                        attributes: ["content", "updatedAt"],
-                        limit: limit,
-                        offset: offset,
-                        order: [['updatedAt', 'DESC']] // Sắp xếp comment mới nhất lên đầu
-                    }
+                    { attributes: ["image", "title", "description", "genre"] }
                 ]
             }),
-            db.Comments.count({
-                where: { storyId: req.params.storyId }
-            })
+            db.Stories.count()
         ]);
 
-        if (!story) {
+        if (!stories) {
             return res.status(404).json({ message: "Không tìm thấy sách" });
         }
 
         // Tính toán thông tin pagination
-        const totalPages = Math.ceil(totalComments / limit);
+        const totalPages = Math.ceil(totalStories / limit);
         const hasNextPage = page < totalPages;
         const hasPrevPage = page > 1;
 
         return res.status(200).json({
-            story: story,
+            stories: stories,
             pagination: {
                 currentPage: page,
                 limit: limit,
-                totalItems: totalComments,
+                totalItems: totalStories,
                 totalPages: totalPages,
                 hasNextPage: hasNextPage,
                 hasPrevPage: hasPrevPage,
