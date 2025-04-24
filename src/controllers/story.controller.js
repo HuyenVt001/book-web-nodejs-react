@@ -130,8 +130,7 @@ let getStory = async (req, res) => {
                 {
                     limit: limit,
                     offset: offset,
-                    include: [
-                        { attributes: ["image", "title", "description", "genre", "popular"] }]
+                    attributes: ["title", "description", "genre", "authorName", "popular", "image"]
                 },
                 { where: { isApproved: 1 } }
             ),
