@@ -4,7 +4,7 @@ const search_controller = require("../controllers/search.controller.js");
 
 const route = express.Router();
 
-route.post("/:order/:page", search_controller.searchByKeyword);
-route.post("/:genreId/:order/:page", search_controller.searchByGenre);
+route.post("/keyword/:order/:page", search_controller.searchByKeyword);
+route.post("/genre/:genreId/:order/:page", search_controller.searchByGenre);
 
 module.exports = route;
