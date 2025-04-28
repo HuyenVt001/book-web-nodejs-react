@@ -53,15 +53,19 @@ let searchByGenre = async (req, res) => {
         if (page < 1) page = 1;
         let offset = (page - 1) * 30;
         let genre = await db.Genres.findByPk(req.params.genreId);
-        let sortOption = req.params.order === "views" ? ["updatedAt", "DESC"] : ["view", "DESC"];
+        let sortOption = req.params.order === "views" ? ["updatedAt", "DESC"] : ["views", "DESC"];
 
         if (!genre)
             return res.status(400).json({ message: "Thể loại không tồn tại" });
-        let stories = await genre.getStories({
-            limit: limit,
-            offset: offset,
-            order: [sortOption]
-        });
+        let [stories, count] = await Promise.all([
+            db.Stories.findAll({
+                where: { genre: genre.name },
+                limit: limit,
+                offset: offset,
+                order: [sortOption]
+            }),
+            db.Stories.count()
+        ]);
         let totalPages = Math.max(Math.ceil(count / limit), 1);
 
         return res.status(200).json({
