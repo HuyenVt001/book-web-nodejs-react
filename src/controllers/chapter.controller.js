@@ -76,7 +76,10 @@ let getChapter = async (req, res) => {
     try {
         let story = await db.Stories.findOne(
             {
-                where: { id: req.params.storyId },
+                where: { 
+                    id: req.params.storyId,
+                    isApproved: 1
+                 },
                 attributes: ["title", "lastestChapterId"]
             }
         )
@@ -84,7 +87,8 @@ let getChapter = async (req, res) => {
             {
                 where: {
                     storyId: req.params.storyId,
-                    chapterNumber: req.params.chapterNumber
+                    chapterNumber: req.params.chapterNumber,
+                    isApproved: 1
                 },
                 attributes: ['id', 'chapterNumber', 'title', 'content', 'storyId']
             }
@@ -117,13 +121,25 @@ let getAllChapters = async (req, res) => {
 
 let getChapterById = async (req, res) => {
     try {
-        const chapter = await db.Chapters.findByPk(req.params.chapterId, {
-            include: [{
-                model: db.Stories,
-                as: 'story',
-                attributes: ['id', 'title']
-            }]
-        });
+        if(res.user!=null && res.user.roleId==0){
+            const chapter = await db.Chapters.findByPk(req.params.chapterId, {
+                include: [{
+                    model: db.Stories,
+                    as: 'story',
+                    attributes: ['id', 'title']
+                }],
+            });
+        }
+        else{
+            const chapter = await db.Chapters.findByPk(req.params.chapterId, {
+                include: [{
+                    model: db.Stories,
+                    as: 'story',
+                    attributes: ['id', 'title']
+                }],
+                where: { isApproved: 1 }
+            });
+        }
         if (!chapter) {
             return res.status(404).json({ message: "Không tìm thấy chương" });
         }

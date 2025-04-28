@@ -165,10 +165,56 @@ let getStory = async (req, res) => {
     }
 }
 
+let getAllStory = async (req, res) => {
+    try {
+        const page = parseInt(req.params.page) || 1;
+        const limit = 20;
+        const offset = (page - 1) * limit;
+
+        let [stories, totalStories] = await Promise.all([
+            db.Stories.findAll(
+                {
+                    limit: limit,
+                    offset: offset,
+                    attributes: ["title", "description", "genre", "authorName", "popular", "image", "id"]
+                }
+            ),
+            db.Stories.count()
+        ]);
+
+        if (!stories) {
+            return res.status(404).json({ message: "Không tìm thấy sách" });
+        }
+
+        // Tính toán thông tin pagination
+        const totalPages = Math.ceil(totalStories / limit);
+        const hasNextPage = page < totalPages;
+        const hasPrevPage = page > 1;
+
+        return res.status(200).json({
+            stories: stories,
+            pagination: {
+                currentPage: page,
+                limit: limit,
+                totalItems: totalStories,
+                totalPages: totalPages,
+                hasNextPage: hasNextPage,
+                hasPrevPage: hasPrevPage,
+                nextPage: hasNextPage ? page + 1 : null,
+                prevPage: hasPrevPage ? page - 1 : null
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+}
+
 let getStoryById = async (req, res) => {
     try {
         let story = await Promise.all([
             db.Stories.findByPk(req.params.storyId, {
+                where: { isApproved: 1 },
                 include: [
                     { model: db.Users, as: "Managed", attributes: ["username"] }, // lấy người quản lý
                     { model: db.Chapters, as: "Chapters", attributes: ["id", "chapterNumber", "title", "createdAt"] }, // lấy các chương
@@ -200,7 +246,13 @@ let getChapterByStory = async (req, res) => {
         let story = await db.Stories.findByPk(req.params.storyId);
         if (!story)
             return res.status(400).json({ message: "Không tìm thấy sách" });
-        let chapters = await story.getChapters();
+        if(res.user!=null && res.user.roleId==0){
+            let chapters = await story.getChapters();
+        }else{
+            let chapters = await story.getChapters({
+                where: { isApproved: 1 }
+            });
+        }
         return res.status(200).json({ chapters: chapters, message: "Lấy danh sách chương thành công" });
     } catch (error) {
         console.log(error);
@@ -216,6 +268,7 @@ module.exports = {
     addManager,
     deleteManager,
     getStory,
+    getAllStory,
     getChapterByStory,
     getStoryById
 }

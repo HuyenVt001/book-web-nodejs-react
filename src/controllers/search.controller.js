@@ -19,7 +19,8 @@ let searchByKeyword = async (req, res) => {
                     [Op.or]: [
                         { title: { [Op.like]: `%${keyword}%` } },
                         { authorName: { [Op.like]: `%${keyword}%` } }
-                    ]
+                    ],
+                    isApproved: 1
                 }
             },
             {
@@ -59,7 +60,10 @@ let searchByGenre = async (req, res) => {
             return res.status(400).json({ message: "Thể loại không tồn tại" });
         let [stories, count] = await Promise.all([
             db.Stories.findAll({
-                where: { genre: genre.name },
+                where: { 
+                    genre: genre.name,
+                    isApproved: 1 
+                },
                 limit: limit,
                 offset: offset,
                 order: [sortOption]
