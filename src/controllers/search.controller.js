@@ -52,8 +52,8 @@ let searchByGenre = async (req, res) => {
         let limit = 30;
         if (page < 1) page = 1;
         let offset = (page - 1) * 30;
-        let genre = await db.Genres.findOne({ where: { name: req.params.genreName } });
-        let sortOption = req.params.order === "updatedAt" ? ["updatedAt", "DESC"] : ["view", "DESC"];
+        let genre = await db.Genres.findByPk(req.params.genreId);
+        let sortOption = req.params.order === "views" ? ["updatedAt", "DESC"] : ["view", "DESC"];
 
         if (!genre)
             return res.status(400).json({ message: "Thể loại không tồn tại" });
