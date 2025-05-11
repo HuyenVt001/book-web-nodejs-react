@@ -176,7 +176,6 @@ let getAllStory = async (req, res) => {
                 {
                     limit: limit,
                     offset: offset,
-                    attributes: ["title", "description", "genre", "authorName", "popular", "image", "id"]
                 }
             ),
             db.Stories.count()
@@ -246,9 +245,9 @@ let getChapterByStory = async (req, res) => {
         let story = await db.Stories.findByPk(req.params.storyId);
         if (!story)
             return res.status(400).json({ message: "Không tìm thấy sách" });
-        if(res.user!=null && res.user.roleId==0){
+        if (res.user != null && res.user.roleId == 0) {
             let chapters = await story.getChapters();
-        }else{
+        } else {
             let chapters = await story.getChapters({
                 where: { isApproved: 1 }
             });

@@ -4,6 +4,7 @@ const db = require("../models/index.js");
 let postChapter = async (data) => {
     try {
         let { title, content, story, file } = data;
+        console.log(data);
         let storyId = story.id;
 
         const chapterNumber = story.lastestChapterId + 1;

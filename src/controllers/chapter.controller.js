@@ -9,7 +9,6 @@ let postChapter = async (req, res) => {
     try {
         const { title, content } = req.body;
         const storyId = req.params.storyId;
-        //console.log(storyId);
         const file = req.file;
 
         if (!title || !storyId) {
@@ -22,7 +21,7 @@ let postChapter = async (req, res) => {
             return res.status(404).json({ message: "Không tìm thấy truyện" });
         }
 
-        await chapter_service.postChapter(title, content, story, file);
+        await chapter_service.postChapter({ title, content, story, file });
 
         return res.status(201).json({
             message: "Tạo chương mới thành công",
