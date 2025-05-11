@@ -223,7 +223,17 @@ let getStoryById = async (req, res) => {
         ]);
 
         let comments = await db.Comments.findAll({
-            where: { storyId: req.params.storyId }
+            where: {
+                storyId: req.params.storyId,
+                id: { [Op.ne]: 1 }
+            },
+            include: [
+                {
+                    model: db.Users,
+                    as: 'Users',
+                    attributes: ["username", "avatar"]
+                }
+            ]
         });
 
         if (!story) {

@@ -228,28 +228,24 @@ let getAllComments = async (req, res) => {
         // Lấy tổng số comment để tính tổng số trang
         const totalComments = await db.Comments.count();
 
-        const comments = await db.Comments.findAll(
-            {
-                include: [
-                    {
-                        model: db.Users,
-                        as: 'Users',
-                        attributes: ['id', 'username']
-                    },
-                    {
-                        model: db.Stories,
-                        as: 'Stories',
-                        attributes: ['id', 'title']
-                    }
-                ],
-                order: [['createdAt', 'DESC']],
-                limit: limit,
-                offset: offset
-            },
-            {
-                where: { storyId: req.params.storyId }
-            }
-        );
+        const comments = await db.Comments.findAll({
+            where: { storyId: req.params.storyId },
+            include: [
+                {
+                    model: db.Users,
+                    as: 'Users',
+                    attributes: ['id', 'username', 'avatar']
+                },
+                {
+                    model: db.Stories,
+                    as: 'Stories',
+                    attributes: ['id', 'title']
+                }
+            ],
+            order: [['createdAt', 'DESC']],
+            limit: limit,
+            offset: offset
+        });
 
         return res.status(200).json({
             comments: comments,

@@ -4,10 +4,10 @@ const db = require("../models/index.js");
 let postChapter = async (data) => {
     try {
         let { title, content, story, file } = data;
-        console.log(data);
         let storyId = story.id;
 
         const chapterNumber = parseInt(story.lastestChapterId) + 1;
+        console.log(story.dataValues.lastestChapterId);
 
         let fileContent = '';
         if (file) {
