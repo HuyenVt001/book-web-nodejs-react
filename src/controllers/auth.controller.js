@@ -243,7 +243,7 @@ let getAllComments = async (req, res) => {
             ],
             order: [['createdAt', 'DESC']]
         });
-        return res.status(200).json({ comments });
+        return res.status(200).json({ comments: comments });
     } catch (error) {
         console.error('Error:', error);
         return res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
