@@ -33,6 +33,16 @@ let signup = async (req, res) => {
     }
 };
 
+let getUser = async (req, res) => {
+    try {
+        const user = req.user;
+        return res.status(200).json({ user: user });
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+};
+
 let signin = async (req, res) => {
     const { usernameOrEmail, password } = req.body;
     try {
@@ -99,38 +109,20 @@ let resetPassword = async (req, res) => {
     }
 };
 
-let updateUsername = async (req, res) => {
+let updateUser = async (req, res) => {
     try {
-        let user = await db.Users.findOne({
-            where: { username: req.body.newUsername }
-        })
-        if (user)
-            return res.status(400).json({ message: "Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác" });
+        let user = req.user;
+        let { newUsername, newAvatar } = req.body;
         await db.Users.update(
-            { username: req.body.newUsername },
-            { where: { id: req.user.id } }
-        )
+            {
+                username: newUsername == null ? user.username : newUsername,
+                avatar: newAvatar == null ? user.avatar : newAvatar,
+            },
+            {
+                where: { id: user.id },
+            }
+        );
         return res.status(200).json({ message: "Cập nhật thành công" });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
-    }
-}
-
-let updateAvatar = async (req, res) => {
-    try {
-        let avatar = req.body.avatar;
-        if (!avatar)
-            return res.status(400).json({ message: "Yêu cầu avatar" });
-        let uploadResponse = await cloudinary.uploader.upload(avatar, {
-            folder: "users",
-            resource_type: "image"
-        })
-        await db.Users.update(
-            { avatar: uploadResponse.secure_url },
-            { where: { id: req.user.id } }
-        )
-        return res.status(200).json({ message: "Thay đổi ảnh đại diện thành công" });
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
@@ -228,27 +220,49 @@ let getCommentByUsernameOrEmail = async (req, res) => {
 
 let getAllComments = async (req, res) => {
     try {
-        const comments = await db.Comments.findAll({
-            include: [
-                {
-                    model: db.Users,
-                    as: 'Users',
-                    attributes: ['id', 'username']
-                },
-                {
-                    model: db.Stories,
-                    as: 'Stories',
-                    attributes: ['id', 'title']
-                }
-            ],
-            order: [['createdAt', 'DESC']]
+        // Lấy page từ query, mặc định là page = 1
+        let page = parseInt(req.params.page) || 1;
+        let limit = 10;
+        let offset = (page - 1) * limit;
+
+        // Lấy tổng số comment để tính tổng số trang
+        const totalComments = await db.Comments.count();
+
+        const comments = await db.Comments.findAll(
+            {
+                include: [
+                    {
+                        model: db.Users,
+                        as: 'Users',
+                        attributes: ['id', 'username']
+                    },
+                    {
+                        model: db.Stories,
+                        as: 'Stories',
+                        attributes: ['id', 'title']
+                    }
+                ],
+                order: [['createdAt', 'DESC']],
+                limit: limit,
+                offset: offset
+            },
+            {
+                where: { storyId: req.params.storyId }
+            }
+        );
+
+        return res.status(200).json({
+            comments: comments,
+            currentPage: page,
+            totalPages: Math.ceil(totalComments / limit),
+            totalComments: totalComments
         });
-        return res.status(200).json({ comments: comments });
     } catch (error) {
         console.error('Error:', error);
         return res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
     }
 };
+
 
 let addFavorite = async (req, res) => {
     try {
@@ -357,22 +371,25 @@ let getAuthStatus = async (req, res) => {
 
 module.exports = {
     signup,
+    getUser,
     signin,
     verifyEmail,
     resetPassword,
     getAuthStatus,
     logout,
-    updateUsername,
-    updateAvatar,
+    updateUser,
     updatePassword,
+
     postComment,
     updateComment,
     deleteComment,
     getAllComments,
     getCommentByUsernameOrEmail,
+
     addFavorite,
     deleteFavorite,
     getFavorite,
+
     getNotification,
     readNotification
 }

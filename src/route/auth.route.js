@@ -11,16 +11,13 @@ route.get("/verify-email", auth_controller.verifyEmail);
 route.post("/signin", auth_controller.signin);
 // cần usernameOrEmail và password
 route.post("/logout", auth_controller.logout);
+route.get("/user", checkLogin, auth_controller.getUser);
 
 route.post("/reset-password", auth_controller.resetPassword);
 // request body cần có thuộc tính usernameOrEmail
 
-route.post("/update/username", checkLogin, auth_controller.updateUsername);
-// request body cần có newUsername
-route.post("/update/avatar", checkLogin, auth_controller.updateAvatar);
-// request body cần có avatar
+route.post("/update/user", checkLogin, auth_controller.updateUser);
 route.post("/update/password", checkLogin, auth_controller.updatePassword);
-// request body cần có password và newPassword
 
 route.post("/post-comment/:storyId", checkLogin, auth_controller.postComment);
 // request body cần có content
@@ -28,6 +25,7 @@ route.post("/update-comment/:commentId", checkLogin, auth_controller.updateComme
 // request body cần có content
 route.post("/delete-comment/:commentId", checkLogin, auth_controller.deleteComment);
 route.get("/get-comment", checkLogin, auth_controller.getCommentByUsernameOrEmail);
+route.get("/comments/:storyId/:page", auth_controller.getAllComments);
 
 route.post("/add-favorite/:storyId", checkLogin, auth_controller.addFavorite);
 route.get("/get-favorite", checkLogin, auth_controller.getFavorite);

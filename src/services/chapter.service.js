@@ -7,7 +7,7 @@ let postChapter = async (data) => {
         console.log(data);
         let storyId = story.id;
 
-        const chapterNumber = story.lastestChapterId + 1;
+        const chapterNumber = parseInt(story.lastestChapterId) + 1;
 
         let fileContent = '';
         if (file) {

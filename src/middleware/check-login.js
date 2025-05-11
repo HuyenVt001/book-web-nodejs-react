@@ -14,13 +14,19 @@ let checkLogin = async (req, res, next) => {
         //console.log(decode, "--------");
         if (!decode)
             return res.status(401).json({ message: "Người dùng chưa đăng nhập! Vui lòng đăng nhập để tiếp tục" });
-        let user = await db.Users.findOne({ where: { id: decode.id } });
+        let user = await db.Users.findOne({
+            where: { id: decode.id },
+            attributes: {
+                include: ['password']
+            }
+        });
         if (!user)
             return res.status(404).json({ message: "Không tìm thấy người dùng" });
         req.user = user;
         next();
     } catch (error) {
         console.log(error);
+        return res.status(500).json({ message: "Xác thực thất bại. Token không hợp lệ hoặc đã hết hạn." });
     }
 };
 
