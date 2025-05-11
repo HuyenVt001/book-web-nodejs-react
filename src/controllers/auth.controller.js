@@ -15,8 +15,8 @@ let signup = async (req, res) => {
         let user = await db.Users.findOne({
             where: {
                 [Op.or]: [
-                    { username: data.username },
-                    { email: data.email }
+                    { username: username },
+                    { email: email }
                 ]
             }
         });
