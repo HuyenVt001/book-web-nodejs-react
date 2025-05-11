@@ -28,7 +28,7 @@ let postChapter = async (data) => {
             title,
             chapterNumber,
             content: fileContent ? fileContent : content,
-            storyId,
+            storyId: storyId,
             views: 0,
             createdAt: Date.now(),
             updatedAt: Date.now(),

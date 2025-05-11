@@ -7,7 +7,9 @@ const path = require('path');
 
 let postChapter = async (req, res) => {
     try {
-        const { title, content, storyId } = req.body;
+        const { title, content } = req.body;
+        const storyId = req.params.storyId;
+        //console.log(storyId);
         const file = req.file;
 
         if (!title || !storyId) {
@@ -15,7 +17,7 @@ let postChapter = async (req, res) => {
         }
 
         // Kiểm tra story tồn tại
-        const story = await db.Stories.findByPk(storyId);
+        const story = await db.Stories.findOne({ where: { id: storyId } });
         if (!story) {
             return res.status(404).json({ message: "Không tìm thấy truyện" });
         }
@@ -76,10 +78,10 @@ let getChapter = async (req, res) => {
     try {
         let story = await db.Stories.findOne(
             {
-                where: { 
+                where: {
                     id: req.params.storyId,
                     isApproved: 1
-                 },
+                },
                 attributes: ["title", "lastestChapterId"]
             }
         )
@@ -121,7 +123,7 @@ let getAllChapters = async (req, res) => {
 
 let getChapterById = async (req, res) => {
     try {
-        if(res.user!=null && res.user.roleId==0){
+        if (res.user != null && res.user.roleId == 0) {
             const chapter = await db.Chapters.findByPk(req.params.chapterId, {
                 include: [{
                     model: db.Stories,
@@ -130,7 +132,7 @@ let getChapterById = async (req, res) => {
                 }],
             });
         }
-        else{
+        else {
             const chapter = await db.Chapters.findByPk(req.params.chapterId, {
                 include: [{
                     model: db.Stories,
