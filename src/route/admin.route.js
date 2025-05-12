@@ -14,19 +14,17 @@ router.delete("/users/:userId", check_role.isAdmin, admin_controller.deleteUser)
 
 router.get("/stories", check_role.isAdmin, story_controller.getAllStory);
 router.get("/stories/:storyId", check_role.isAdmin, story_controller.getStoryById);
-router.put("/stories/:storyId", check_role.isAdmin, story_controller.updateStory);
-router.delete("/stories/:storyId", check_role.isAdmin, story_controller.deleteStory);
 
 router.get("/stories/pending", check_role.isAdmin, admin_controller.getPendingStories);
 router.post("/stories/approve/:storyId", check_role.isAdmin, admin_controller.approveStory);
+router.post("/stories/drop/:storyId", check_role.isAdmin, admin_controller.dropStory);
 
 router.get("/chapters", check_role.isAdmin, chapter_controller.getAllChapters);
 router.get("/chapters/:chapterId", check_role.isAdmin, chapter_controller.getChapterById);
-router.put("/chapters/:chapterId", check_role.isAdmin, chapter_controller.updateChapter);
-router.delete("/chapters/:chapterId", check_role.isAdmin, chapter_controller.deleteChapter);
 
 router.get("/chapters/pending", check_role.isAdmin, admin_controller.getPendingChapters);
 router.put("/chapters/:chapterId/approve", check_role.isAdmin, admin_controller.approveChapter);
+router.put("/chapters/:chapterId/drop", check_role.isAdmin, admin_controller.dropChapter);
 
 router.get("/comments", check_role.isAdmin, auth_controller.getAllComments);
 router.get("/comments/:commentId", check_role.isAdmin, auth_controller.getCommentByUsernameOrEmail);

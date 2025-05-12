@@ -60,9 +60,50 @@ let searchByGenre = async (req, res) => {
             return res.status(400).json({ message: "Thể loại không tồn tại" });
         let [stories, count] = await Promise.all([
             db.Stories.findAll({
-                where: { 
+                where: {
                     genre: genre.name,
-                    isApproved: 1 
+                    isApproved: 1
+                },
+                limit: limit,
+                offset: offset,
+                order: [sortOption]
+            }),
+            db.Stories.count()
+        ]);
+        let totalPages = Math.max(Math.ceil(count / limit), 1);
+
+        return res.status(200).json({
+            stories: stories,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalStories: count,
+                pageSize: limit,
+                hasNextPage: page < totalPages
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+};
+
+let searchByAuthorName = async (req, res) => {
+    try {
+        let page = req.params.page || 1;
+        let authorName = req.params.authorName;
+        let limit = 30;
+        if (page < 1) page = 1;
+        let offset = (page - 1) * 30;
+        let sortOption = req.params.order === "views" ? ["updatedAt", "DESC"] : ["views", "DESC"];
+
+        if (!authorName)
+            return res.status(400).json({ message: "Tác giả không tồn tại" });
+        let [stories, count] = await Promise.all([
+            db.Stories.findAll({
+                where: {
+                    authorName: authorName,
+                    isApproved: 1
                 },
                 limit: limit,
                 offset: offset,
@@ -90,5 +131,6 @@ let searchByGenre = async (req, res) => {
 
 module.exports = {
     searchByKeyword,
-    searchByGenre
+    searchByGenre,
+    searchByAuthorName
 }

@@ -10,6 +10,7 @@ route.post("/post-chapter/:storyId", check_role.isManager, chapter_controller.po
 route.post("/update-chapter/:storyId/:chapterNumber", check_role.isManager, chapter_controller.updateChapter);
 // request body: title (có thể có hoặc không), content (có thể có hoặc không)
 route.post("/delete-chapter/:storyId/:chapterNumber", check_role.isManager, chapter_controller.deleteChapter);
+route.post("/insert-chapter/:storyId", check_role.isManager, chapter_controller.insertChapterAfter);
 
 route.get("/:storyId/:chapterNumber", chapter_controller.getChapter);
 

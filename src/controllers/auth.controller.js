@@ -184,7 +184,6 @@ let deleteComment = async (req, res) => {
         let comment = await db.Comments.findByPk(req.params.commentId);
         if (!comment)
             return res.status(400).json({ message: "Không tìm thấy bình luận" });
-        comment.removeUsers();
         await db.Comments.destroy({ where: { id: comment.id } });
         return res.status(200).json({ message: "Xóa bình luận thành công" });
     } catch (error) {
@@ -229,7 +228,7 @@ let getAllComments = async (req, res) => {
         const totalComments = await db.Comments.count();
 
         const comments = await db.Comments.findAll({
-            where: { storyId: req.params.storyId },
+            where: { storyId: { [Op.ne]: 1 } },
             include: [
                 {
                     model: db.Users,

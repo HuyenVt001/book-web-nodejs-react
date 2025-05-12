@@ -73,6 +73,53 @@ let deleteChapter = async (req, res) => {
     }
 }
 
+let insertChapterAfter = async (req, res) => {
+    try {
+        const { title, content, afterChapterNumber } = req.body;
+        const storyId = req.params.storyId;
+
+        if (!title || !afterChapterNumber || !storyId) {
+            return res.status(400).json({ message: "Thiếu thông tin bắt buộc" });
+        }
+
+        // Kiểm tra truyện tồn tại
+        const story = await db.Stories.findByPk(storyId);
+        if (!story) {
+            return res.status(404).json({ message: "Không tìm thấy truyện" });
+        }
+
+        const newChapterNumber = afterChapterNumber + 1;
+
+        // Tăng số thứ tự các chương có chapterNumber >= newChapterNumber
+        // await db.Chapters.increment(
+        //     { chapterNumber: 1 },
+        //     {
+        //         where: {
+        //             storyId,
+        //             chapterNumber: {
+        //                 [Op.gte]: newChapterNumber
+        //             }
+        //         }
+        //     }
+        // );
+
+        // Thêm chương mới
+        const newChapter = await db.Chapters.create({
+            title,
+            content,
+            chapterNumber: newChapterNumber,
+            storyId,
+            isApproved: 0
+        });
+
+        return res.status(201).json({ message: "Chèn chương mới thành công", chapter: newChapter });
+    } catch (error) {
+        console.error("Lỗi khi chèn chương:", error);
+        return res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
+    }
+};
+
+
 let getChapter = async (req, res) => {
     try {
         let story = await db.Stories.findOne(
@@ -158,5 +205,6 @@ module.exports = {
     deleteChapter,
     getChapter,
     getAllChapters,
-    getChapterById
+    getChapterById,
+    insertChapterAfter
 }
