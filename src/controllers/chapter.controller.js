@@ -120,36 +120,56 @@ let insertChapterAfter = async (req, res) => {
 };
 
 
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
 let getChapter = async (req, res) => {
     try {
-        let story = await db.Stories.findOne(
-            {
-                where: {
-                    id: req.params.storyId,
-                    isApproved: 1
-                },
-                attributes: ["title", "lastestChapterId"]
-            }
-        );
-        let chapter = await db.Chapters.findOne(
-            {
-                where: {
-                    storyId: req.params.storyId,
-                    chapterNumber: req.params.chapterNumber,
-                    isApproved: 1
-                },
-                attributes: ['id', 'chapterNumber', 'title', 'content', 'storyId']
-            }
-        );
-        console.log(story, chapter);
-        if (!chapter)
-            return res.status(400).json({ message: "Không tìm thấy chương sách" });
-        return res.status(200).json({ chapter: chapter, story: story });
+        let roleId = 1; // mặc định là user thường
+
+        // Nếu có cookie chứa token
+        const token = req.cookies?.token || req.headers.authorization?.replace("Bearer ", "");
+        if (token) {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            roleId = decoded.roleId; // bạn cần đảm bảo đã lưu roleId khi tạo token
+        }
+
+        const isAdmin = roleId === 0;
+
+        // Lấy thông tin truyện
+        let story = await db.Stories.findOne({
+            where: {
+                id: req.params.storyId,
+                ...(isAdmin ? {} : { isApproved: 1 })
+            },
+            attributes: ["title", "lastestChapterId"]
+        });
+
+        if (!story) {
+            return res.status(404).json({ message: "Không tìm thấy truyện" });
+        }
+
+        // Lấy chương
+        let chapter = await db.Chapters.findOne({
+            where: {
+                storyId: req.params.storyId,
+                chapterNumber: req.params.chapterNumber,
+                ...(isAdmin ? {} : { isApproved: 1 })
+            },
+            attributes: ['id', 'chapterNumber', 'title', 'content', 'storyId']
+        });
+
+        if (!chapter) {
+            return res.status(404).json({ message: "Không tìm thấy chương sách" });
+        }
+
+        return res.status(200).json({ chapter, story });
     } catch (error) {
-        console.log(error);
-        return res.status(400).json({ message: "Lỗi máy chủ nội bộ" });
+        console.error(error);
+        return res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
     }
-}
+};
+
 
 let getAllChapters = async (req, res) => {
     try {
