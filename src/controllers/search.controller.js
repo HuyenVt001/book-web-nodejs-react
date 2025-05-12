@@ -13,22 +13,18 @@ let searchByKeyword = async (req, res) => {
         if (!keyword)
             return res.status(400).json({ message: "Thiếu từ khóa tìm kiếm" });
 
-        let { count, rows: stories } = await db.Stories.findAll(
-            {
-                where: {
-                    [Op.or]: [
-                        { title: { [Op.like]: `%${keyword}%` } },
-                        { authorName: { [Op.like]: `%${keyword}%` } }
-                    ],
-                    isApproved: 1
-                }
+        const { count, rows: stories } = await db.Stories.findAndCountAll({
+            where: {
+                isApproved: 1,
+                [Op.or]: [
+                    sequelize.literal(`CONVERT(title USING utf8) COLLATE utf8_general_ci LIKE '%${keyword}%'`),
+                    sequelize.literal(`CONVERT(authorName USING utf8) COLLATE utf8_general_ci LIKE '%${keyword}%'`)
+                ]
             },
-            {
-                limit: limit,
-                offset: offset,
-                order: [sortOption]
-            }
-        );
+            limit: limit,
+            offset: offset,
+            order: [sortOption]
+        });
         let totalPages = Math.max(Math.ceil(count / limit), 1);
 
         return res.status(200).json({

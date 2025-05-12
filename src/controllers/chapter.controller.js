@@ -125,13 +125,12 @@ require("dotenv").config();
 
 let getChapter = async (req, res) => {
     try {
-        let roleId = 1; // mặc định là user thường
+        let roleId = 1;
 
-        // Nếu có cookie chứa token
         const token = req.cookies?.token || req.headers.authorization?.replace("Bearer ", "");
         if (token) {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            roleId = decoded.roleId; // bạn cần đảm bảo đã lưu roleId khi tạo token
+            roleId = decoded.roleId;
         }
 
         const isAdmin = roleId === 0;

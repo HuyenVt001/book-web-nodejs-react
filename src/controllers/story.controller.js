@@ -131,7 +131,7 @@ let getStory = async (req, res) => {
                     limit: limit,
                     offset: offset,
                     where: { isApproved: 1 },
-                    attributes: ["title", "description", "genre", "authorName", "popular", "image", "id"]
+                    attributes: ["title", "description", "genre", "authorName", "popular", "image", "id", "createdAt", "views"]
                 }
             ),
             db.Stories.count()
@@ -232,6 +232,8 @@ let getStoryById = async (req, res) => {
             attributes: ['id', 'title', 'authorName', 'status', 'image', 'genre', 'description', 'createdAt']
         });
 
+        let genre = await db.Genres.findOne({ where: { name: story.genre }, attributes: ['id'] });
+
         let comments = await db.Comments.findAll({
             where: {
                 storyId: req.params.storyId,
@@ -252,7 +254,8 @@ let getStoryById = async (req, res) => {
 
         return res.status(200).json({
             story: story,
-            comments: comments
+            comments: comments,
+            genre: genre
         });
     } catch (error) {
         console.log(error);
