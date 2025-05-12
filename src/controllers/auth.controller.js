@@ -301,8 +301,8 @@ let getNotification = async (req, res) => {
         let notifications = await db.Notifications.findAll({
             where: {
                 userId: req.user.id,
-                isRead: false
-            }
+            },
+            order: [['createdAt', 'DESC']]
         });
         return res.status(200).json({ notifications: notifications });
     } catch (error) {

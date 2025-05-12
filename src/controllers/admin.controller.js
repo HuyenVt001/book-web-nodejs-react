@@ -97,10 +97,9 @@ let approveStory = async (req, res) => {
         let users = await story.getManaged();
         let notifications = users.map(user => ({
             userId: user.id,
-            message: story.isApproved === true ? 'Truyện của bạn đã được phê duyệt' : 'Truyện của bạn đã bị từ chối',
             storyId: 1,
             chapterId: 1,
-            content: story.isApproved === true
+            message: story.isApproved === true
                 ? `Truyện "${story.title}" của bạn đã được phê duyệt.`
                 : `Truyện "${story.title}" của bạn đã bị từ chối.`,
             isRead: false
@@ -134,10 +133,9 @@ let dropStory = async (req, res) => {
         let users = await story.getManaged();
         let notifications = users.map(user => ({
             userId: user.id,
-            message: story.isApproved === true ? 'Truyện của bạn đã được phê duyệt' : 'Truyện của bạn đã bị từ chối',
             storyId: 1,
             chapterId: 1,
-            content: story.isApproved === true
+            message: story.isApproved === true
                 ? `Truyện "${story.title}" của bạn đã được phê duyệt.`
                 : `Truyện "${story.title}" của bạn đã bị từ chối.`,
             isRead: false
@@ -216,10 +214,9 @@ let approveChapter = async (req, res) => {
 
         let notifications = await users.map(user => ({
             userId: user.id,
-            title: chapter.isApproved === true ? 'Chương của bạn đã được phê duyệt' : 'Chương của bạn đã bị từ chối',
             storyId: 1,
             chapterId: 1,
-            content: chapter.isApproved === true
+            message: chapter.isApproved === true
                 ? `Chương "${chapter.title}" của truyện "${chapter.Story.title}" đã được phê duyệt và đã được xuất bản.`
                 : `Chương "${chapter.title}" của truyện "${chapter.Story.title}" đã bị từ chối.`,
             isRead: false
@@ -293,10 +290,9 @@ let dropChapter = async (req, res) => {
 
         let notifications = await users.map(user => ({
             userId: user.id,
-            title: chapter.isApproved === true ? 'Chương của bạn đã được phê duyệt' : 'Chương của bạn đã bị từ chối',
             storyId: 1,
             chapterId: 1,
-            content: chapter.isApproved === true
+            message: chapter.isApproved === true
                 ? `Chương "${chapter.title}" của truyện "${chapter.Story.title}" đã được phê duyệt và đã được xuất bản.`
                 : `Chương "${chapter.title}" của truyện "${chapter.Story.title}" đã bị từ chối.`,
             isRead: false
