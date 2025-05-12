@@ -288,15 +288,8 @@ let deleteFavorite = async (req, res) => {
 
 let getFavorite = async (req, res) => {
     try {
-        let listStoryIds = await req.user.getFavorites();
-        let listStories = [];
-        for (let storyId of listStoryIds) {
-            let story = await db.Stories.findOne(
-                { where: { id: storyId } },
-                { include: { model: db.Users, as: "Favorites" } }
-            );
-            listStories.push(story);
-        }
+        let listStories = await req.user.getFavorites();
+        //console.log(listStories);
         return res.status(200).json({ listStories: listStories });
     } catch (error) {
         console.log(error);

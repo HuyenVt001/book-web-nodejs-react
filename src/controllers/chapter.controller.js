@@ -83,7 +83,7 @@ let getChapter = async (req, res) => {
                 },
                 attributes: ["title", "lastestChapterId"]
             }
-        )
+        );
         let chapter = await db.Chapters.findOne(
             {
                 where: {
@@ -94,6 +94,7 @@ let getChapter = async (req, res) => {
                 attributes: ['id', 'chapterNumber', 'title', 'content', 'storyId']
             }
         );
+        console.log(story, chapter);
         if (!chapter)
             return res.status(400).json({ message: "Không tìm thấy chương sách" });
         return res.status(200).json({ chapter: chapter, story: story });

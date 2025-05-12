@@ -213,10 +213,12 @@ let getStoryById = async (req, res) => {
     try {
         let story = await Promise.all([
             db.Stories.findByPk(req.params.storyId, {
-                where: { isApproved: 1 },
+                where: {
+                    isApproved: 1
+                },
                 include: [
                     { model: db.Users, as: "Managed", attributes: ["username"] }, // lấy người quản lý
-                    { model: db.Chapters, as: "Chapters", attributes: ["id", "chapterNumber", "title", "createdAt"] }, // lấy các chương
+                    { model: db.Chapters, as: "Chapters", attributes: ["id", "chapterNumber", "title", "createdAt", "isApproved"] }, // lấy các chương
                 ],
                 attributes: ['id', 'title', 'authorName', 'status', 'image', 'genre', 'description', 'createdAt']
             }),
