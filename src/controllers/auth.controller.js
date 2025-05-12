@@ -262,9 +262,10 @@ let getAllComments = async (req, res) => {
 let addFavorite = async (req, res) => {
     try {
         let story = await db.Stories.findByPk(req.params.storyId);
+        console.log(story);
         if (!story)
             return res.status(400).json({ message: "Không tìm thấy sách" });
-        await req.user.addFavorites(story);
+        await req.user.addFavorite(story);
         return res.status(200).json({ message: "Thêm sách yêu thích thành công" });
     } catch (error) {
         console.log(error);
