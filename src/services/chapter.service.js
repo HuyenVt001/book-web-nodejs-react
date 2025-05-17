@@ -6,8 +6,10 @@ let postChapter = async (data) => {
         let { title, content, story, file } = data;
         let storyId = story.id;
 
-        const chapterNumber = parseInt(story.lastestChapterId) + 1;
-        console.log(story.dataValues.lastestChapterId);
+        const lastChapterId = story.dataValues.lastestChapterId;
+
+        const chapterNumber = parseInt(lastChapterId) + 1;
+        console.log(lastChapterId);
 
         let fileContent = '';
         if (file) {
@@ -37,7 +39,7 @@ let postChapter = async (data) => {
         });
 
         await db.Stories.update(
-            { lastChapterId: chapterNumber },
+            { lastestChapterId: lastChapterId + 1 },
             { where: { id: story.id } }
         )
         // Gửi thông báo
